@@ -1,13 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { Sun, Moon } from "lucide-react"; // Icons for theme toggle
+import { Sun, Moon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const Header = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [theme, setTheme] = useState<"light" | "dark">("light");
+	const dropdownRef = useRef<HTMLDivElement>(null);
+	const hamburgerRef = useRef<HTMLSpanElement>(null);
 
-	// On mount, check the saved theme or system preference
 	useEffect(() => {
 		const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
 		if (savedTheme) {
@@ -22,6 +24,29 @@ export const Header = () => {
 		localStorage.setItem("theme", newTheme);
 		document.documentElement.classList.toggle("dark", newTheme === "dark");
 	};
+
+	// Close dropdown if clicking outside
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				dropdownRef.current &&
+				!dropdownRef.current.contains(event.target as Node) &&
+				!hamburgerRef.current?.contains(event.target as Node)
+			) {
+				setIsMenuOpen(false);
+			}
+		};
+
+		if (isMenuOpen) {
+			document.addEventListener("mousedown", handleClickOutside);
+		} else {
+			document.removeEventListener("mousedown", handleClickOutside);
+		}
+
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [isMenuOpen]);
 
 	return (
 		<header className="flex items-center justify-between px-6 py-2 border-b bg-background text-foreground font-inter relative">
@@ -55,13 +80,40 @@ export const Header = () => {
 
 			{/* Right-side buttons + theme toggle for lg and xl */}
 			<div className="hidden lg:flex items-center gap-2">
-				<Button variant="ghost" onClick={toggleTheme}>
-					{theme === "light" ? (
-						<Moon className="w-4 h-4" />
-					) : (
-						<Sun className="w-4 h-4" />
-					)}
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={toggleTheme}
+					aria-pressed={theme === "dark"}
+					className="!active:scale-100 focus:!ring-0 transition-none relative overflow-hidden"
+				>
+					<AnimatePresence mode="wait" initial={false}>
+						{theme === "light" ? (
+							<motion.div
+								key="moon"
+								initial={{ opacity: 0, rotate: -90 }}
+								animate={{ opacity: 1, rotate: 0 }}
+								exit={{ opacity: 0, rotate: 90 }}
+								transition={{ duration: 0.2 }}
+								className="absolute inset-0 flex items-center justify-center"
+							>
+								<Moon className="w-4 h-4" />
+							</motion.div>
+						) : (
+							<motion.div
+								key="sun"
+								initial={{ opacity: 0, rotate: 90 }}
+								animate={{ opacity: 1, rotate: 0 }}
+								exit={{ opacity: 0, rotate: -90 }}
+								transition={{ duration: 0.2 }}
+								className="absolute inset-0 flex items-center justify-center"
+							>
+								<Sun className="w-4 h-4" />
+							</motion.div>
+						)}
+					</AnimatePresence>
 				</Button>
+
 				<Button variant="outline" className="font-medium">
 					Signup
 				</Button>
@@ -80,33 +132,44 @@ export const Header = () => {
 				</Button>
 
 				{/* Hamburger Menu Icon */}
-				<GiHamburgerMenu
-					onClick={() => setIsMenuOpen(!isMenuOpen)}
-					className="text-2xl cursor-pointer"
-				/>
+				<span ref={hamburgerRef}>
+					<GiHamburgerMenu
+						onClick={() => setIsMenuOpen(!isMenuOpen)}
+						className="text-2xl cursor-pointer"
+					/>
+				</span>
 
 				{/* Dropdown Menu */}
-				{isMenuOpen && (
-					<div className="text-xs md:text-sm absolute top-16 right-6 bg-popover text-popover-foreground shadow-lg rounded-md py-2 px-4 w-48 z-50">
-						<a href="#" className="block py-2 font-medium">
-							About
-						</a>
-						<a href="#" className="block py-2 font-medium">
-							Services
-						</a>
-						<a href="#" className="block py-2 font-medium">
-							Contact
-						</a>
-						<div className="border-t mt-2">
+				<AnimatePresence>
+					{isMenuOpen && (
+						<motion.div
+							key="dropdown"
+							initial={{ opacity: 0, y: -10 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -10 }}
+							transition={{ duration: 0.2 }}
+							className="text-xs md:text-sm absolute top-16 right-6 bg-popover text-popover-foreground shadow-lg rounded-md py-2 px-4 w-48 z-50"
+						>
 							<a href="#" className="block py-2 font-medium">
-								Signup
+								About
 							</a>
 							<a href="#" className="block py-2 font-medium">
-								Login
+								Services
 							</a>
-						</div>
-					</div>
-				)}
+							<a href="#" className="block py-2 font-medium">
+								Contact
+							</a>
+							<div className="border-t mt-2">
+								<a href="#" className="block py-2 font-medium">
+									Signup
+								</a>
+								<a href="#" className="block py-2 font-medium">
+									Login
+								</a>
+							</div>
+						</motion.div>
+					)}
+				</AnimatePresence>
 			</div>
 		</header>
 	);
