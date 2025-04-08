@@ -34,10 +34,10 @@ jobs:
         run: yarn install
 
       - name: Build React App
-        run: yarn workspace webapp build
+        run: yarn build
 
       - name: Run frontend tests
-        run: yarn workspace webapp test --watchAll=false
+        run: yarn test --watchAll=false
 
   DeployFrontendToS3:
     name: Deploy Frontend to S3
