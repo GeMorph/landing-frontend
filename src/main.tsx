@@ -36,3 +36,5 @@ if (!rootElement.innerHTML) {
 		</React.StrictMode>
 	);
 }
+
+export { router };

@@ -1,0 +1,91 @@
+import { Button } from "@/components/ui/button";
+import { ChevronRight } from "lucide-react";
+import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
+
+export const Footer = () => {
+	return (
+		<footer className="w-full border-t bg-background text-foreground font-inter px-3 py-10">
+			<div className="max-w-[80%] mx-auto grid grid-cols-1 md:grid-cols-[1fr_auto_auto] md:gap-x-6 lg:gap-x-10 gap-y-10">
+				{/* Left column */}
+				<div>
+					<div className="flex items-center space-x-2 text-5xl font-bold mb-4">
+						<img
+							src="/logo-bright.png"
+							alt="logo"
+							className="h-6 md:h-8 lg:h-10 dark:hidden"
+						/>
+						<img
+							src="/logo-dark.png"
+							alt="logo-dark"
+							className="h-6 md:h-8 lg:h-10 hidden dark:block"
+						/>
+						<div className="text-lg md:text-2xl lg:text-4xl text-foreground">GeMorph</div>
+					</div>
+					<p className="text-sm md:text-md lg:text-lg text-muted-foreground mb-6 leading-snug">
+						Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint non
+						laboriosam amet accusantium fuga illo quibusdam neque vitae deleniti
+						maiores beatae molestiae deserunt sunt aliquam mollitia nulla, at
+						dolor quae?
+					</p>
+					<h3 className="text-sm md:text-md lg:text-lg font-semibold mb-2">
+						Follow Us
+					</h3>
+					<div className="flex gap-5">
+						<div className="bg-muted p-2 rounded-xl">
+							<FaFacebookF className="text-xl text-[#1877F2]" />
+						</div>
+						<div className="bg-muted p-2 rounded-xl">
+							<FaInstagram className="text-xl text-[#E1306C]" />
+						</div>
+						<div className="bg-muted p-2 rounded-xl">
+							<FaLinkedinIn className="text-xl text-[#0A66C2]" />
+						</div>
+					</div>
+				</div>
+
+				{/* Quick Links column */}
+				<div>
+					<h2 className="text-md md:text-lg lg:text-xl font-semibold mb-4">
+						Quick Links
+					</h2>
+					<div className="space-y-4 text-lg">
+						{["Home", "About", "Services", "Contact"].map((label, idx) => (
+							<div key={idx} className="flex items-center space-x-3">
+								<ChevronRight className="h-6 w-6" />
+								<Button
+									variant="link"
+									className="p-0 h-auto text-sm md:text-md lg:text-lg font-medium"
+								>
+									{label}
+								</Button>
+							</div>
+						))}
+					</div>
+				</div>
+
+				{/* Legal column */}
+				<div>
+					<h2 className="text-md md:text-lg lg:text-xl font-semibold mb-4">
+						Legal
+					</h2>
+					<div className="space-y-4 text-lg">
+						{["Terms and Conditions", "Privacy Policy"].map((label, idx) => (
+							<div key={idx} className="flex items-center space-x-3">
+								<ChevronRight className="h-6 w-6" />
+								<Button
+									variant="link"
+									className="p-0 h-auto text-sm md:text-md lg:text-lg font-medium"
+								>
+									{label}
+								</Button>
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+			<div className="mt-10 text-center text-xs md:text-sm lg:text-base text-muted-foreground">
+				© 2025, GeMorph. All rights reserved.
+			</div>
+		</footer>
+	);
+};

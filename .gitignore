@@ -35,3 +35,6 @@ storybook-static
 /coverage/
 
 .env
+
+*storybook.log
+storybook-static/
