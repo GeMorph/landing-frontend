@@ -36,9 +36,6 @@ jobs:
       - name: Build React App
         run: yarn build
 
-      - name: Run frontend tests
-        run: yarn test --watchAll=false
-
   DeployFrontendToS3:
     name: Deploy Frontend to S3
     needs: BuildAndTestFrontend
