@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Header = () => {
+	const navigate = useNavigate();
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [theme, setTheme] = useState<"light" | "dark">("light");
 	const dropdownRef = useRef<HTMLDivElement>(null);
@@ -114,10 +116,19 @@ export const Header = () => {
 					</AnimatePresence>
 				</Button>
 
-				<Button variant="outline" className="font-medium">
+				<Button
+					variant="outline"
+					className="font-medium "
+					onClick={() => navigate({ to: "/signup" })}
+				>
 					Signup
 				</Button>
-				<Button className="font-medium">Login</Button>
+				<Button
+					className="font-medium"
+					onClick={() => navigate({ to: "/login" })}
+				>
+					Login
+				</Button>
 			</div>
 
 			{/* Mobile / Tablet Section */}
