@@ -4,6 +4,7 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 
 export const Header = () => {
 	const navigate = useNavigate();
@@ -53,29 +54,30 @@ export const Header = () => {
 	return (
 		<header className="flex items-center justify-between px-7 md:px-8 lg:px-10 xl:px-12 mx-0 py-2 border-b bg-background text-foreground font-inter sticky top-0 z-50 bg-white dark:bg-black rounded-md shadow-sm">
 			{/* Logo */}
-			<div className="flex items-center justify-between space-x-2 text-2xl font-bold">
-				<img
-					src="/logo-bright.png"
-					alt="logo"
-					className="h-5 md:h-6 lg:h-7 dark:hidden"
-				/>
-				<img
-					src="/logo-dark.png"
-					alt="logo-dark"
-					className="h-5 md:h-6 lg:h-7 hidden dark:block"
-				/>
-				<div className="text-lg md:text-xl lg:text-2xl">GeMorph</div>
-			</div>
-
+			<Link to="/" className="inline-block">
+				<div className="flex items-center justify-between space-x-2 text-2xl font-bold">
+					<img
+						src="/logo-bright.png"
+						alt="logo"
+						className="h-5 md:h-6 lg:h-7 dark:hidden"
+					/>
+					<img
+						src="/logo-dark.png"
+						alt="logo-dark"
+						className="h-5 md:h-6 lg:h-7 hidden dark:block"
+					/>
+					<div className="text-lg md:text-xl lg:text-2xl">GeMorph</div>
+				</div>
+			</Link>
 			{/* Navigation for lg and xl */}
 			<nav className="hidden lg:flex space-x-6 text-sm font-medium">
-				<a href="#" className="font-medium">
+				<a href="#about" className="font-medium">
 					About
 				</a>
-				<a href="#" className="font-medium">
+				<a href="#services" className="font-medium">
 					Services
 				</a>
-				<a href="#" className="font-medium">
+				<a href="#contact" className="font-medium">
 					Contact
 				</a>
 			</nav>

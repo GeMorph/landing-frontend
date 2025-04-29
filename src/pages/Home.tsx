@@ -132,7 +132,10 @@ export default function Home() {
 						</AnimatePresence>
 					</div>
 				</section>
-				<section className="w-full bg-background text-foreground font-inter px-3 py-10">
+				<section
+					id="about"
+					className="w-full bg-background text-foreground font-inter px-3 py-10"
+				>
 					<div className="flex flex-center items-center justify-center">
 						<h2 className="text-4xl font-extrabold mb-6">
 							What makes Gemorph Unique
@@ -180,7 +183,7 @@ export default function Home() {
 					</div>
 				</section>
 
-				<section className="py-12 px-4 md:px-8 lg:px-16 xl:px-20">
+				<section id="services" className="py-12 px-4 md:px-8 lg:px-16 xl:px-20">
 					<div className="flex flex-center items-center justify-center">
 						<h2 className="text-4xl font-extrabold mb-6">
 							Our Commitment to Excellence
