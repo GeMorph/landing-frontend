@@ -1,9 +1,10 @@
+// src/App.tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-// import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import {RouterProvider} from "@tanstack/react-router";
+import { RouterProvider } from "@tanstack/react-router";
+import { Toaster } from "sonner"; // ✅ Add this line
 import type { FunctionComponent } from "./common/types";
-// import { TanStackRouterDevelopmentTools } from "./components/utils/development-tools/TanStackRouterDevelopmentTools";
-import { router } from "./main"; // make sure this line exists
+import { AuthProvider } from "./hooks/useAuth";
+import { router } from "./main";
 
 const queryClient = new QueryClient();
 
@@ -14,13 +15,10 @@ type AppProps = {
 const App = ({ router }: AppProps): FunctionComponent => {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<RouterProvider router={router} />
-			{/* <TanStackRouterDevelopmentTools
-				router={router}
-				initialIsOpen={false}
-				position="bottom-right"
-			/>
-			<ReactQueryDevtools initialIsOpen={false} /> */}
+			<AuthProvider>
+				<Toaster position="top-right" richColors /> {/* ✅ Global Toaster */}
+				<RouterProvider router={router} />
+			</AuthProvider>
 		</QueryClientProvider>
 	);
 };
