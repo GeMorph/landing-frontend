@@ -22,4 +22,29 @@ const features = [
 	},
 ];
 
-export default features;
+// Example structure in constants/features.ts
+const services = [
+	{
+		title: "DNA Sequencing",
+		description:
+			"Unlock deep insights from genetic material to drive personalized analysis.",
+		srcLight: "/service1.png", // Add the light image version in public folder
+		srcDark: "/service1.png", // Add the dark image version in public folder
+	},
+	{
+		title: "DNA to Face Analysis",
+		description:
+			"Predict facial features based on genomic data using advanced algorithms.",
+		srcLight: "/service2.png",
+		srcDark: "/service2.png",
+	},
+	{
+		title: "Age, Height, Gender, Ancestry",
+		description:
+			"Analyze phenotypic traits and ancestral roots with unparalleled precision.",
+		srcLight: "/service3.png",
+		srcDark: "/service3.png",
+	},
+];
+
+export { services, features };

@@ -49,7 +49,7 @@ export const Header = () => {
 	}, [isMenuOpen]);
 
 	return (
-		<header className="flex items-center justify-between px-7 md:px-8 lg:px-10 xl:px-12 sm:mx-0 md:mx-5 lg:mx-8 xl:mx-12 py-2 border-b bg-background text-foreground font-inter relative">
+		<header className="flex items-center justify-between px-7 md:px-8 lg:px-10 xl:px-12 mx-0 py-2 border-b bg-background text-foreground font-inter sticky top-0 z-50 bg-white dark:bg-black rounded-md shadow-sm">
 			{/* Logo */}
 			<div className="flex items-center justify-between space-x-2 text-2xl font-bold">
 				<img
