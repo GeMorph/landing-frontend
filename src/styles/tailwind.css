@@ -96,4 +96,37 @@
 	html {
 		scroll-behavior: smooth;
 	}
+	/* Container for the section */
+	.curved-section {
+		position: relative;
+		background-color: #f0f0f0; /* Change to your desired background */
+		padding-top: 50px; /* Adjust the top padding */
+		padding-bottom: 50px; /* Adjust the bottom padding */
+		overflow: hidden;
+	}
+
+	/* Top curve */
+	.curved-section::before {
+		content: "";
+		position: absolute;
+		top: -40px; /* Adjust based on the size of the curve */
+		left: 0;
+		width: 100%;
+		height: 80px; /* Adjust the height of the curve */
+		background: #fff; /* Background color for the curve */
+		border-radius: 50% 50% 0 0;
+		transform: rotate(180deg);
+	}
+
+	/* Bottom curve */
+	.curved-section::after {
+		content: "";
+		position: absolute;
+		bottom: -40px; /* Adjust based on the size of the curve */
+		left: 0;
+		width: 100%;
+		height: 80px; /* Adjust the height of the curve */
+		background: #fff; /* Background color for the curve */
+		border-radius: 0 0 50% 50%;
+	}
 }

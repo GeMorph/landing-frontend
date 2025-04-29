@@ -5,6 +5,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import { features, services } from "@/constants";
 
 export default function Home() {
+	 const sectionVariants = {
+			hidden: { opacity: 0, y: 30 },
+			visible: {
+				opacity: 1,
+				y: 0,
+				transition: { duration: 1, ease: "easeOut" },
+			},
+		};
+
+		const curveVariants = {
+			hidden: { top: "-80px", bottom: "-80px" },
+			visible: {
+				top: "-40px",
+				bottom: "-40px",
+				transition: { duration: 1, ease: "easeOut" },
+			},
+		};
 	const fullText = "Giving a Face to Every DNA";
 	const [displayedText, setDisplayedText] = useState("");
 	const [showButton, setShowButton] = useState(false);
@@ -235,22 +252,46 @@ export default function Home() {
 						))}
 					</div>
 				</section>
-				<section className="relative bg-gray-100 dark:bg-gray-900 text-center text-gray-800 dark:text-white overflow-hidden">
-					{/* Top Curved Wave */}
-					<div className="absolute top-0 left-0 w-full">
-						<svg
-							className="w-full h-[100px]"
-							viewBox="0 0 1440 320"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								fill="currentColor"
-								d="M0,64L48,85.3C96,107,192,149,288,154.7C384,160,480,128,576,112C672,96,768,96,864,122.7C960,149,1056,203,1152,218.7C1248,235,1344,213,1392,202.7L1440,192V0H1392C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0H0Z"
-							/>
-						</svg>
-					</div>
+				<motion.section
+					className="curved-section py-12"
+					variants={sectionVariants}
+					initial="hidden"
+					animate="visible"
+				>
+					{/* Curved top and bottom using Framer Motion */}
+					<motion.div
+						className="curved-top"
+						variants={curveVariants}
+						initial="hidden"
+						animate="visible"
+						style={{
+							position: "absolute",
+							top: "-40px",
+							left: "0",
+							width: "100%",
+							height: "80px",
+							background: "#fff",
+							borderRadius: "50% 50% 0 0",
+							transform: "rotate(180deg)",
+						}}
+					></motion.div>
 
-					{/* Main content */}
+					<motion.div
+						className="curved-bottom"
+						variants={curveVariants}
+						initial="hidden"
+						animate="visible"
+						style={{
+							position: "absolute",
+							bottom: "-40px",
+							left: "0",
+							width: "100%",
+							height: "80px",
+							background: "#fff",
+							borderRadius: "0 0 50% 50%",
+						}}
+					></motion.div>
+
 					<div className="relative z-10 min-h-[80vh] flex flex-col justify-center items-center px-6 pt-32">
 						<h2 className="text-4xl md:text-5xl font-bold mb-4">
 							Ready to get started?
@@ -262,21 +303,7 @@ export default function Home() {
 							Create an account
 						</button>
 					</div>
-
-					{/* Bottom Curved Wave */}
-					<div className="absolute bottom-0 left-0 w-full rotate-180">
-						<svg
-							className="w-full h-[100px]"
-							viewBox="0 0 1440 320"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								fill="currentColor"
-								d="M0,64L48,85.3C96,107,192,149,288,154.7C384,160,480,128,576,112C672,96,768,96,864,122.7C960,149,1056,203,1152,218.7C1248,235,1344,213,1392,202.7L1440,192V320H1392C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320H0Z"
-							/>
-						</svg>
-					</div>
-				</section>
+				</motion.section>
 			</main>
 			<Footer />
 		</div>
