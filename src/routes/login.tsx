@@ -12,7 +12,7 @@ function RouteComponent() {
 	return (
 		<>
 			<Header />
-			<AuthCard title="Login">
+			<AuthCard title="Welcome Back">
 				<SignInForm />
 			</AuthCard>
 		</>
