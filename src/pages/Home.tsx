@@ -82,6 +82,7 @@ export default function Home() {
 			<motion.div
 				initial={{ y: 0 }}
 				animate={{ y: showHeader ? 0 : -100 }}
+				viewport={{ once: false }}
 				transition={{ duration: 0.3 }}
 				className="fixed top-0 left-0 w-full z-50"
 			>
@@ -106,9 +107,10 @@ export default function Home() {
 					<div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center px-4">
 						{/* Heading Animation */}
 						<motion.h1
-							className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight"
+							className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mt-32"
 							initial={{ opacity: 0, y: -50 }}
 							animate={{ opacity: 1, y: 0 }}
+							viewport={{ once: false }}
 							transition={{ duration: 1 }}
 						>
 							{displayedText}
@@ -142,7 +144,7 @@ export default function Home() {
 							initial={{ opacity: 0, x: -50 }}
 							whileInView={{ opacity: 1, x: 0 }}
 							transition={{ duration: 0.8, ease: "easeOut" }}
-							viewport={{ once: true }}
+							viewport={{ once: false }}
 						>
 							<p className=" text-gray-600 dark:text-gray-300 mb-4">
 								Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean
@@ -161,7 +163,7 @@ export default function Home() {
 							initial={{ opacity: 0, x: 50 }}
 							whileInView={{ opacity: 1, x: 0 }}
 							transition={{ duration: 0.8, ease: "easeOut" }}
-							viewport={{ once: true }}
+							viewport={{ once: false }}
 							className="relative flex justify-center"
 						>
 							<img
@@ -191,7 +193,7 @@ export default function Home() {
 								variants={featureVariants}
 								initial="hidden"
 								whileInView="show"
-								viewport={{ once: true }}
+								viewport={{ once: false }}
 								custom={index}
 								className="flex flex-col items-center text-center"
 							>
@@ -228,7 +230,7 @@ export default function Home() {
 								variants={featureVariants}
 								initial="hidden"
 								whileInView="show"
-								viewport={{ once: true }}
+								viewport={{ once: false }}
 								custom={index}
 								className="flex flex-col items-center text-center"
 							>
@@ -256,14 +258,16 @@ export default function Home() {
 					className="curved-section py-12"
 					variants={sectionVariants}
 					initial="hidden"
-					animate="visible"
+					whileInView="visible" // ✅ trigger on scroll
+					viewport={{ once: false, amount: 0.5 }} // ✅ allow repeat
 				>
-					{/* Curved top and bottom using Framer Motion */}
+					{/* Curved top */}
 					<motion.div
 						className="curved-top"
 						variants={curveVariants}
 						initial="hidden"
-						animate="visible"
+						whileInView="visible" // ✅ use whileInView
+						viewport={{ once: false }}
 						style={{
 							position: "absolute",
 							top: "-40px",
@@ -274,13 +278,15 @@ export default function Home() {
 							borderRadius: "50% 50% 0 0",
 							transform: "rotate(180deg)",
 						}}
-					></motion.div>
+					/>
 
+					{/* Curved bottom */}
 					<motion.div
 						className="curved-bottom"
 						variants={curveVariants}
 						initial="hidden"
-						animate="visible"
+						whileInView="visible" // ✅ use whileInView
+						viewport={{ once: false, amount: 0.5 }}
 						style={{
 							position: "absolute",
 							bottom: "-40px",
@@ -290,7 +296,7 @@ export default function Home() {
 							background: "#fff",
 							borderRadius: "0 0 50% 50%",
 						}}
-					></motion.div>
+					/>
 
 					<div className="relative z-10 min-h-[80vh] flex flex-col justify-center items-center px-6 pt-32">
 						<h2 className="text-4xl md:text-5xl font-bold mb-4">
