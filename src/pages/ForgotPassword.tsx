@@ -27,8 +27,7 @@ export const ForgotPassword = () => {
 	};
 
 	return (
-		<div className="w-full max-w-md mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-			<h2 className="text-2xl font-bold text-center mb-6">Reset Password</h2>
+		<>
 			<p className="text-center text-gray-600 dark:text-gray-400 mb-6">
 				Enter your email address and we'll send you a link to reset your
 				password.
@@ -63,6 +62,6 @@ export const ForgotPassword = () => {
 					</Link>
 				</div>
 			</form>
-		</div>
+		</>
 	);
 };
