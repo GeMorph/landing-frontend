@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
+import { Link } from "@tanstack/react-router";
 
 export const Footer = () => {
 	return (
@@ -8,19 +9,23 @@ export const Footer = () => {
 			<div className="max-w-[80%] mx-auto grid grid-cols-1 md:grid-cols-[1fr_auto_auto] md:gap-x-6 lg:gap-x-10 gap-y-10">
 				{/* Left column */}
 				<div>
-					<div className="flex items-center space-x-2 text-5xl font-bold mb-4">
-						<img
-							src="/logo-bright.png"
-							alt="logo"
-							className="h-6 md:h-8 lg:h-10 dark:hidden"
-						/>
-						<img
-							src="/logo-dark.png"
-							alt="logo-dark"
-							className="h-6 md:h-8 lg:h-10 hidden dark:block"
-						/>
-						<div className="text-lg md:text-2xl lg:text-4xl text-foreground">GeMorph</div>
-					</div>
+					<Link to="/" className="inline-block">
+						<div className="flex items-center space-x-2 text-5xl font-bold mb-4">
+							<img
+								src="/logo-bright.png"
+								alt="logo"
+								className="h-6 md:h-8 lg:h-10 dark:hidden"
+							/>
+							<img
+								src="/logo-dark.png"
+								alt="logo-dark"
+								className="h-6 md:h-8 lg:h-10 hidden dark:block"
+							/>
+							<div className="text-lg md:text-2xl lg:text-4xl text-foreground">
+								GeMorph
+							</div>
+						</div>
+					</Link>
 					<p className="text-sm md:text-md lg:text-lg text-muted-foreground mb-6 leading-snug">
 						Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint non
 						laboriosam amet accusantium fuga illo quibusdam neque vitae deleniti
@@ -31,15 +36,30 @@ export const Footer = () => {
 						Follow Us
 					</h3>
 					<div className="flex gap-5">
-						<div className="bg-muted p-2 rounded-xl">
+						<a
+							href="https://facebook.com"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="bg-muted p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+						>
 							<FaFacebookF className="text-xl text-[#1877F2]" />
-						</div>
-						<div className="bg-muted p-2 rounded-xl">
+						</a>
+						<a
+							href="https://instagram.com"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="bg-muted p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+						>
 							<FaInstagram className="text-xl text-[#E1306C]" />
-						</div>
-						<div className="bg-muted p-2 rounded-xl">
+						</a>
+						<a
+							href="https://linkedin.com"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="bg-muted p-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+						>
 							<FaLinkedinIn className="text-xl text-[#0A66C2]" />
-						</div>
+						</a>
 					</div>
 				</div>
 
@@ -49,15 +69,20 @@ export const Footer = () => {
 						Quick Links
 					</h2>
 					<div className="space-y-4 text-lg">
-						{["Home", "About", "Services", "Contact"].map((label, idx) => (
+						{[
+							{ label: "Home", to: "/" },
+							{ label: "About", to: "/#about" },
+							{ label: "Services", to: "/#services" },
+							{ label: "Contact", to: "/#contact" },
+						].map((link, idx) => (
 							<div key={idx} className="flex items-center space-x-3">
 								<ChevronRight className="h-6 w-6" />
-								<Button
-									variant="link"
-									className="p-0 h-auto text-sm md:text-md lg:text-lg font-medium"
+								<Link
+									to={link.to}
+									className="text-sm md:text-md lg:text-lg font-medium hover:text-primary transition-colors"
 								>
-									{label}
-								</Button>
+									{link.label}
+								</Link>
 							</div>
 						))}
 					</div>
@@ -69,15 +94,21 @@ export const Footer = () => {
 						Legal
 					</h2>
 					<div className="space-y-4 text-lg">
-						{["Terms and Conditions", "Privacy Policy"].map((label, idx) => (
+						{[
+							{ label: "Terms and Conditions", to: "/terms" },
+							{ label: "Privacy Policy", to: "/privacy" },
+						].map((link, idx) => (
 							<div key={idx} className="flex items-center space-x-3">
 								<ChevronRight className="h-6 w-6" />
-								<Button
-									variant="link"
-									className="p-0 h-auto text-sm md:text-md lg:text-lg font-medium"
+								<Link
+									to={link.to}
+									onClick={() =>
+										window.scrollTo({ top: 0, behavior: "smooth" })
+									}
+									className="text-sm md:text-md lg:text-lg font-medium hover:text-primary transition-colors"
 								>
-									{label}
-								</Button>
+									{link.label}
+								</Link>
 							</div>
 						))}
 					</div>

@@ -390,7 +390,7 @@ export default function Home() {
 				</section>
 
 				{/* Contact Section */}
-				<section className="py-16 md:py-20 px-4 md:px-8 lg:px-16 xl:px-20 bg-white dark:bg-gray-950 -mt-10 md:-mt-20 relative z-20">
+				<section id="contact" className="py-16 md:py-20 px-4 md:px-8 lg:px-16 xl:px-20 bg-white dark:bg-gray-950 -mt-10 md:-mt-20 relative z-20">
 					<motion.div
 						variants={sectionVariants}
 						initial="hidden"
