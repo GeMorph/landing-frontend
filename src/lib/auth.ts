@@ -7,7 +7,12 @@ import { auth } from "./firebase-config";
 
 const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000/api";
 
-export async function signUp(email: string, password: string) {
+export async function signUp(
+	email: string,
+	password: string,
+	firstName: string,
+	lastName: string
+) {
 	try {
 		// Create user in Firebase first
 		const userCredential = await createUserWithEmailAndPassword(
@@ -29,9 +34,8 @@ export async function signUp(email: string, password: string) {
 				},
 				body: JSON.stringify({
 					email,
-					name: email.split("@")[0], // Default name from email
-					firstName: "",
-					lastName: "",
+					firstName,
+					lastName,
 				}),
 			});
 

@@ -46,7 +46,12 @@ export const SignUpForm = () => {
 
 		setLoading(true);
 		try {
-			await signUp(formData.email, formData.password);
+			await signUp(
+				formData.email,
+				formData.password,
+				formData.firstName,
+				formData.lastName
+			);
 			toast.success("Account created successfully!");
 			navigate({ to: "/" });
 		} catch (error: any) {
