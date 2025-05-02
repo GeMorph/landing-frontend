@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth } from "@/lib/firebase-config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const ForgotPassword = () => {
+	const navigate = useNavigate();
 	const [email, setEmail] = useState("");
 	const [loading, setLoading] = useState(false);
 
@@ -16,10 +17,14 @@ export const ForgotPassword = () => {
 		setLoading(true);
 
 		try {
-			await sendPasswordResetEmail(auth, email);
-			toast.success("Password reset email sent!");
-			setEmail("");
+			await sendPasswordResetEmail(auth, email, {
+				url: `${window.location.origin}/reset-password`,
+				handleCodeInApp: false,
+			});
+			toast.success("Password reset email sent! Please check your inbox.");
+			navigate({ to: "/login" });
 		} catch (error: any) {
+			console.error("Reset email error:", error);
 			toast.error(error.message || "Failed to send reset email");
 		} finally {
 			setLoading(false);
@@ -27,41 +32,29 @@ export const ForgotPassword = () => {
 	};
 
 	return (
-		<>
-			<p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-				Enter your email address and we'll send you a link to reset your
-				password.
-			</p>
-			<form onSubmit={handleSubmit} className="space-y-4">
-				<div className="space-y-2">
-					<Label htmlFor="email">Email</Label>
-					<Input
-						id="email"
-						type="email"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-						placeholder="john.doe@example.com"
-						required
-					/>
-				</div>
+		<form onSubmit={handleSubmit} className="space-y-4">
+			<div className="space-y-2">
+				<Label htmlFor="email" className="text-sm font-medium">
+					Email
+				</Label>
+				<Input
+					id="email"
+					type="email"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					placeholder="Enter your email"
+					required
+					className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+				/>
+			</div>
 
-				<Button
-					type="submit"
-					disabled={loading}
-					className="w-full bg-blue-600 hover:bg-blue-700"
-				>
-					{loading ? "Sending..." : "Send Reset Link"}
-				</Button>
-
-				<div className="text-center text-sm">
-					<Link
-						to="/login"
-						className="text-blue-600 hover:underline dark:text-blue-400"
-					>
-						← Back to Sign In
-					</Link>
-				</div>
-			</form>
-		</>
+			<Button
+				type="submit"
+				disabled={loading}
+				className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200"
+			>
+				{loading ? "Sending..." : "Reset Password"}
+			</Button>
+		</form>
 	);
 };

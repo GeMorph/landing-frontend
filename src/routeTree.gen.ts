@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as TermsImport } from './routes/terms'
 import { Route as SignupImport } from './routes/signup'
+import { Route as ResetPasswordImport } from './routes/reset-password'
 import { Route as PrivacyImport } from './routes/privacy'
 import { Route as LoginImport } from './routes/login'
 import { Route as ForgotPasswordImport } from './routes/forgot-password'
@@ -29,6 +30,12 @@ const TermsRoute = TermsImport.update({
 const SignupRoute = SignupImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ResetPasswordRoute = ResetPasswordImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -88,6 +95,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyImport
       parentRoute: typeof rootRoute
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordImport
+      parentRoute: typeof rootRoute
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -112,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
 }
@@ -121,6 +136,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
 }
@@ -131,6 +147,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
 }
@@ -142,16 +159,25 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/privacy'
+    | '/reset-password'
     | '/signup'
     | '/terms'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/forgot-password' | '/login' | '/privacy' | '/signup' | '/terms'
+  to:
+    | '/'
+    | '/forgot-password'
+    | '/login'
+    | '/privacy'
+    | '/reset-password'
+    | '/signup'
+    | '/terms'
   id:
     | '__root__'
     | '/'
     | '/forgot-password'
     | '/login'
     | '/privacy'
+    | '/reset-password'
     | '/signup'
     | '/terms'
   fileRoutesById: FileRoutesById
@@ -162,6 +188,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   PrivacyRoute: typeof PrivacyRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
 }
@@ -171,6 +198,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   PrivacyRoute: PrivacyRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
 }
@@ -189,6 +217,7 @@ export const routeTree = rootRoute
         "/forgot-password",
         "/login",
         "/privacy",
+        "/reset-password",
         "/signup",
         "/terms"
       ]
@@ -204,6 +233,9 @@ export const routeTree = rootRoute
     },
     "/privacy": {
       "filePath": "privacy.tsx"
+    },
+    "/reset-password": {
+      "filePath": "reset-password.tsx"
     },
     "/signup": {
       "filePath": "signup.tsx"

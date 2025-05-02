@@ -6,11 +6,19 @@ import { features, services } from "@/constants";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { submitContactForm } from "@/lib/contact";
+import { toast } from "sonner";
 
 export default function Home() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [imagesLoaded, setImagesLoaded] = useState(0);
 	const totalImages = 8; // Total number of images to load
+	const [contactForm, setContactForm] = useState({
+		name: "",
+		email: "",
+		message: "",
+	});
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
 		const handleImageLoad = () => {
@@ -122,6 +130,28 @@ export default function Home() {
 		window.addEventListener("scroll", handleScroll);
 		return () => window.removeEventListener("scroll", handleScroll);
 	}, [lastScrollY]);
+
+	const handleContactSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setIsSubmitting(true);
+
+		try {
+			await submitContactForm(contactForm);
+			toast.success("Message sent successfully! We'll get back to you soon.");
+			setContactForm({ name: "", email: "", message: "" });
+		} catch (error: any) {
+			toast.error(error.message || "Failed to send message. Please try again.");
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	const handleContactChange = (
+		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+	) => {
+		const { name, value } = e.target;
+		setContactForm((prev) => ({ ...prev, [name]: value }));
+	};
 
 	if (isLoading) {
 		return (
@@ -390,7 +420,10 @@ export default function Home() {
 				</section>
 
 				{/* Contact Section */}
-				<section id="contact" className="py-16 md:py-20 px-4 md:px-8 lg:px-16 xl:px-20 bg-white dark:bg-gray-950 -mt-10 md:-mt-20 relative z-20">
+				<section
+					id="contact"
+					className="py-16 md:py-20 px-4 md:px-8 lg:px-16 xl:px-20 bg-white dark:bg-gray-950 -mt-10 md:-mt-20 relative z-20"
+				>
 					<motion.div
 						variants={sectionVariants}
 						initial="hidden"
@@ -414,7 +447,7 @@ export default function Home() {
 							viewport={{ once: true }}
 							className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-[0_0_30px_-5px_rgba(0,0,0,0.1)] dark:shadow-[0_0_30px_-5px_rgba(0,0,0,0.3)] hover:shadow-[0_0_30px_-2px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_0_30px_-2px_rgba(0,0,0,0.4)] transition-shadow duration-300"
 						>
-							<form className="space-y-6">
+							<form onSubmit={handleContactSubmit} className="space-y-6">
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 									<div className="space-y-2">
 										<Label
@@ -425,7 +458,11 @@ export default function Home() {
 										</Label>
 										<Input
 											id="name"
+											name="name"
+											value={contactForm.name}
+											onChange={handleContactChange}
 											placeholder="John Doe"
+											required
 											className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700"
 										/>
 									</div>
@@ -438,8 +475,12 @@ export default function Home() {
 										</Label>
 										<Input
 											id="email"
+											name="email"
 											type="email"
+											value={contactForm.email}
+											onChange={handleContactChange}
 											placeholder="john@example.com"
+											required
 											className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700"
 										/>
 									</div>
@@ -453,17 +494,22 @@ export default function Home() {
 									</Label>
 									<textarea
 										id="message"
+										name="message"
+										value={contactForm.message}
+										onChange={handleContactChange}
 										rows={4}
 										placeholder="How can we help you?"
+										required
 										className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700"
 									/>
 								</div>
 								<div className="flex justify-end">
 									<Button
 										type="submit"
-										className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 hover:from-blue-700 hover:to-blue-600"
+										disabled={isSubmitting}
+										className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
 									>
-										Send Message
+										{isSubmitting ? "Sending..." : "Send Message"}
 									</Button>
 								</div>
 							</form>
