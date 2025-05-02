@@ -1,6 +1,7 @@
 import {
 	createUserWithEmailAndPassword,
 	signInWithEmailAndPassword,
+	deleteUser,
 } from "firebase/auth";
 import { auth } from "./firebase";
 
@@ -8,7 +9,7 @@ const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000/api";
 
 export async function signUp(email: string, password: string) {
 	try {
-		// Create user in Firebase
+		// Create user in Firebase first
 		const userCredential = await createUserWithEmailAndPassword(
 			auth,
 			email,
@@ -18,26 +19,34 @@ export async function signUp(email: string, password: string) {
 		// Get the ID token
 		const token = await userCredential.user.getIdToken();
 
-		// Create user in our backend
-		const response = await fetch(`${API_URL}/user/signup`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"X-Firebase-Token": token,
-			},
-			body: JSON.stringify({
-				email,
-				name: email.split("@")[0], // Default name from email
-				firstName: "",
-				lastName: "",
-			}),
-		});
+		try {
+			// Create user in our backend
+			const response = await fetch(`${API_URL}/user/signup`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"X-Firebase-Token": token,
+				},
+				body: JSON.stringify({
+					email,
+					name: email.split("@")[0], // Default name from email
+					firstName: "",
+					lastName: "",
+				}),
+			});
 
-		if (!response.ok) {
-			throw new Error("Failed to create user in backend");
+			if (!response.ok) {
+				// If backend creation fails, delete the Firebase user
+				await deleteUser(userCredential.user);
+				throw new Error("Failed to create user in backend");
+			}
+
+			return userCredential;
+		} catch (error) {
+			// If any error occurs during backend creation, delete the Firebase user
+			await deleteUser(userCredential.user);
+			throw error;
 		}
-
-		return userCredential;
 	} catch (error: any) {
 		throw new Error(error.message || "Failed to sign up");
 	}
