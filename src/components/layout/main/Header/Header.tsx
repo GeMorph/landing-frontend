@@ -51,6 +51,11 @@ export const Header = () => {
 		};
 	}, [isMenuOpen]);
 
+	const handleNavigation = (path: string) => {
+		navigate({ to: path });
+		setIsMenuOpen(false);
+	};
+
 	return (
 		<header className="flex items-center justify-between px-7 md:px-8 lg:px-10 xl:px-12 mx-0 py-2 border-b bg-background text-foreground font-inter sticky top-0 z-50 bg-white dark:bg-black rounded-md shadow-sm">
 			{/* Logo */}
@@ -120,14 +125,14 @@ export const Header = () => {
 
 				<Button
 					variant="outline"
-					className="font-medium "
-					onClick={() => navigate({ to: "/signup" })}
+					className="font-medium"
+					onClick={() => handleNavigation("/signup")}
 				>
 					Signup
 				</Button>
 				<Button
 					className="font-medium"
-					onClick={() => navigate({ to: "/login" })}
+					onClick={() => handleNavigation("/login")}
 				>
 					Login
 				</Button>
@@ -163,22 +168,28 @@ export const Header = () => {
 							transition={{ duration: 0.2 }}
 							className="text-xs md:text-sm absolute top-16 right-6 bg-popover text-popover-foreground shadow-lg rounded-md py-2 px-4 w-48 z-50"
 						>
-							<a href="#" className="block py-2 font-medium">
+							<a href="#about" className="block py-2 font-medium">
 								About
 							</a>
-							<a href="#" className="block py-2 font-medium">
+							<a href="#services" className="block py-2 font-medium">
 								Services
 							</a>
-							<a href="#" className="block py-2 font-medium">
+							<a href="#contact" className="block py-2 font-medium">
 								Contact
 							</a>
 							<div className="border-t mt-2">
-								<a href="#" className="block py-2 font-medium">
+								<button
+									onClick={() => handleNavigation("/signup")}
+									className="block w-full text-left py-2 font-medium hover:text-primary"
+								>
 									Signup
-								</a>
-								<a href="#" className="block py-2 font-medium">
+								</button>
+								<button
+									onClick={() => handleNavigation("/login")}
+									className="block w-full text-left py-2 font-medium hover:text-primary"
+								>
 									Login
-								</a>
+								</button>
 							</div>
 						</motion.div>
 					)}
