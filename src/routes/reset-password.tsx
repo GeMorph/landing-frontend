@@ -12,7 +12,7 @@ function RouteComponent() {
 	return (
 		<AuthGuard>
 			<Header />
-			<AuthCard title="Reset Your Password">
+			<AuthCard>
 				<ResetPassword />
 			</AuthCard>
 		</AuthGuard>

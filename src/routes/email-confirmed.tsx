@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import EmailConfirmed from "@/pages/EmailConfirmed";
 import { Header } from "@/components/layout/main/Header/Header";
 import { AuthCard } from "@/components/layout/auth/AuthCard";
-import { AuthGuard } from "@/components/auth/AuthGuard";
+import { EmailConfirmedGuard } from "@/components/auth/EmailConfirmedGuard";
 
 export const Route = createFileRoute("/email-confirmed")({
 	component: RouteComponent,
@@ -10,11 +10,11 @@ export const Route = createFileRoute("/email-confirmed")({
 
 function RouteComponent() {
 	return (
-		<AuthGuard>
+		<EmailConfirmedGuard>
 			<Header />
 			<AuthCard>
 				<EmailConfirmed />
 			</AuthCard>
-		</AuthGuard>
+		</EmailConfirmedGuard>
 	);
 }
