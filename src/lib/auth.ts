@@ -184,9 +184,31 @@ export async function authenticatedFetch(
 
 export async function resetPassword(email: string) {
 	try {
-		await sendPasswordResetEmail(auth, email);
+		// First check if user exists in our backend
+		console.log("Checking if user exists...");
+		const response = await axios.get(
+			`${API_URL}/user/email/${encodeURIComponent(email)}`
+		);
+
+		if (response.data.success) {
+			// User exists, send reset email
+			console.log("User exists, sending reset email...");
+			await sendPasswordResetEmail(auth, email, {
+				url: `${window.location.origin}/reset-password`,
+				handleCodeInApp: false,
+			});
+			return true;
+		}
+		return false;
 	} catch (error: any) {
-		throw new Error(error.message);
+		console.error("Error in resetPassword:", error);
+		if (error.response?.status === 404) {
+			throw new Error("No account found with this email address");
+		}
+		throw new Error(
+			error.response?.data?.message ||
+				"Failed to process password reset request"
+		);
 	}
 }
 

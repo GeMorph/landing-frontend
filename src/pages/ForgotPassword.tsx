@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "@/lib/firebase-config";
+import { resetPassword } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,15 +16,12 @@ export const ForgotPassword = () => {
 		setLoading(true);
 
 		try {
-			await sendPasswordResetEmail(auth, email, {
-				url: `${window.location.origin}/reset-password`,
-				handleCodeInApp: false,
-			});
+			await resetPassword(email);
 			toast.success("Password reset email sent! Please check your inbox.");
 			navigate({ to: "/login" });
 		} catch (error: any) {
-			console.error("Reset email error:", error);
-			toast.error(error.message || "Failed to send reset email");
+			console.error("Error in handleSubmit:", error);
+			toast.error(error.message || "Failed to process request");
 		} finally {
 			setLoading(false);
 		}
