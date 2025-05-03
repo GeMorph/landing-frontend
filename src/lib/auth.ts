@@ -14,7 +14,7 @@ import {
 import { auth, actionCodeSettings } from "./firebase-config";
 import axios from "axios";
 
-const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000";
+const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000/api";
 
 // Password validation helper
 export function validatePassword(password: string): {
@@ -89,7 +89,7 @@ export async function signUp(
 		// Create user in our backend
 		console.log("Attempting to create user in backend...");
 		const response = await axios.post(
-			`${API_URL}/api/user/signup`,
+			`${API_URL}/user/signup`,
 			{
 				email,
 				firstName,
