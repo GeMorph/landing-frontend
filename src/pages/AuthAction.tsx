@@ -31,7 +31,12 @@ export default function AuthAction() {
 					case "verifyEmail":
 						await applyActionCode(auth, oobCode);
 						toast.success("Email verified successfully!");
-						navigate({ to: "/email-confirmed" });
+						// Use window.location for production to ensure full page reload
+						if (import.meta.env.PROD) {
+							window.location.href = "/email-confirmed";
+						} else {
+							navigate({ to: "/email-confirmed" });
+						}
 						break;
 					case "resetPassword":
 						console.log("Handling reset password");
