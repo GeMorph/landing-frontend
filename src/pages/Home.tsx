@@ -8,27 +8,27 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { submitContactForm } from "@/lib/contact";
 import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 export default function Home() {
 	const [isLoading, setIsLoading] = useState(true);
-	const [imagesLoaded, setImagesLoaded] = useState(0);
-	const totalImages = 8; // Total number of images to load
 	const [contactForm, setContactForm] = useState({
 		name: "",
 		email: "",
 		message: "",
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const navigate = useNavigate();
 
 	useEffect(() => {
+		let loadedImages = 0;
+		const totalImages = 8; // Total number of images to load
+
 		const handleImageLoad = () => {
-			setImagesLoaded((prev) => {
-				const newCount = prev + 1;
-				if (newCount === totalImages) {
-					setIsLoading(false);
-				}
-				return newCount;
-			});
+			loadedImages++;
+			if (loadedImages === totalImages) {
+				setIsLoading(false);
+			}
 		};
 
 		// Preload images
@@ -412,6 +412,7 @@ export default function Home() {
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true }}
 							transition={{ duration: 0.6, delay: 0.4 }}
+							onClick={() => navigate({ to: "/signup" })}
 							className="px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full text-base md:text-lg font-medium hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
 						>
 							Create an account

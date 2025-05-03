@@ -161,7 +161,7 @@ export const Privacy = () => {
 
 			<motion.div variants={itemVariants} className="mt-8 flex justify-start">
 				<Link
-					to="/signup"
+					to="/"
 					className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-500 dark:from-gray-500 dark:to-gray-400 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
 				>
 					<svg
@@ -177,7 +177,7 @@ export const Privacy = () => {
 							d="M10 19l-7-7m0 0l7-7m-7 7h18"
 						/>
 					</svg>
-					Back to Sign Up
+					Back to Home
 				</Link>
 			</motion.div>
 		</motion.div>
