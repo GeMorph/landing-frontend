@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ResetPassword } from "../pages/ResetPassword";
 import { Header } from "@/components/layout/main/Header/Header";
 import { AuthCard } from "@/components/layout/auth/AuthCard";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 
 export const Route = createFileRoute("/reset-password")({
 	component: RouteComponent,
@@ -9,11 +10,11 @@ export const Route = createFileRoute("/reset-password")({
 
 function RouteComponent() {
 	return (
-		<>
+		<AuthGuard>
 			<Header />
-			<AuthCard >
+			<AuthCard title="Reset Your Password">
 				<ResetPassword />
 			</AuthCard>
-		</>
+		</AuthGuard>
 	);
 }
