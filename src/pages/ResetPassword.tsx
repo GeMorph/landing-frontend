@@ -1,131 +1,118 @@
-import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { confirmPasswordReset } from "firebase/auth";
-import { auth } from "@/lib/firebase-config";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from "lucide-react";
+import { confirmResetPassword, validatePassword } from "@/lib/auth";
+
+type ResetPasswordSearch = {
+	mode?: string;
+	oobCode?: string;
+};
 
 export const ResetPassword = () => {
 	const navigate = useNavigate();
-	const [password, setPassword] = useState("");
+	const search = useSearch({ from: "/reset-password" }) as ResetPasswordSearch;
+	const [newPassword, setNewPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
-	const [loading, setLoading] = useState(false);
-	const [showPassword, setShowPassword] = useState(false);
-	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+	const [resetting, setResetting] = useState(false);
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+	useEffect(() => {
+		const mode = search.mode;
+		const oobCode = search.oobCode;
 
-		if (password !== confirmPassword) {
-			toast.error("Passwords do not match");
-			return;
+		if (mode !== "resetPassword" || !oobCode) {
+			navigate({ to: "/" });
 		}
+	}, [search, navigate]);
 
-		setLoading(true);
+	const handleReset = async (e: React.FormEvent) => {
+		e.preventDefault();
+		const oobCode = search.oobCode;
 
-		const searchParams = new URLSearchParams(window.location.search);
-		const actionCode = searchParams.get("oobCode");
-		if (!actionCode) {
+		if (!oobCode) {
 			toast.error("Invalid reset link");
 			return;
 		}
 
+		if (newPassword !== confirmPassword) {
+			toast.error("Passwords do not match");
+			return;
+		}
+
+		const validation = validatePassword(newPassword);
+		if (!validation.isValid) {
+			toast.error(validation.message);
+			return;
+		}
+
+		setResetting(true);
 		try {
-			await confirmPasswordReset(auth, actionCode, password);
-			toast.success("Password reset successful!");
-			navigate({ to: "/login" });
+			await confirmResetPassword(oobCode, newPassword);
+			toast.success("Password reset successfully!");
+			navigate({ to: "/" });
 		} catch (error: any) {
-			console.error("Reset error:", error);
 			toast.error(error.message || "Failed to reset password");
 		} finally {
-			setLoading(false);
+			setResetting(false);
 		}
 	};
 
 	return (
-					<div className="bg-white dark:bg-gray-800">
-						<div className="text-center mb-8">
-							<p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-								Please enter your new password
-							</p>
-						</div>
-						<form onSubmit={handleSubmit} className="space-y-6">
-							<div className="space-y-4">
-								<div>
-									<Label htmlFor="password" className="text-sm font-medium">
-										New Password
-									</Label>
-									<div className="relative">
-										<Input
-											id="password"
-											type={showPassword ? "text" : "password"}
-											value={password}
-											onChange={(e) => setPassword(e.target.value)}
-											required
-											minLength={6}
-											className="mt-1 pr-10"
-											placeholder="Enter new password"
-										/>
-										<button
-											type="button"
-											onClick={() => setShowPassword(!showPassword)}
-											className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-										>
-											{showPassword ? (
-												<EyeOff className="h-5 w-5" />
-											) : (
-												<Eye className="h-5 w-5" />
-											)}
-										</button>
-									</div>
-								</div>
-
-								<div>
-									<Label
-										htmlFor="confirmPassword"
-										className="text-sm font-medium"
-									>
-										Confirm Password
-									</Label>
-									<div className="relative">
-										<Input
-											id="confirmPassword"
-											type={showConfirmPassword ? "text" : "password"}
-											value={confirmPassword}
-											onChange={(e) => setConfirmPassword(e.target.value)}
-											required
-											minLength={6}
-											className="mt-1 pr-10"
-											placeholder="Confirm new password"
-										/>
-										<button
-											type="button"
-											onClick={() =>
-												setShowConfirmPassword(!showConfirmPassword)
-											}
-											className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-										>
-											{showConfirmPassword ? (
-												<EyeOff className="h-5 w-5" />
-											) : (
-												<Eye className="h-5 w-5" />
-											)}
-										</button>
-									</div>
-								</div>
-							</div>
-
-							<Button
-								type="submit"
-								disabled={loading}
-								className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200"
-							>
-								{loading ? "Resetting..." : "Reset Password"}
-							</Button>
-						</form>
+		<div className="min-h-screen flex items-center justify-center bg-gray-50">
+			<div className="max-w-md w-full mx-4 bg-white rounded-lg shadow-lg p-8">
+				<div className="text-center mb-8">
+					<h1 className="text-2xl font-bold text-gray-900">Reset Password</h1>
+					<p className="text-gray-600 mt-2">
+						Please enter your new password below
+					</p>
+					<div className="mt-4 text-sm text-gray-600 text-left">
+						<p>Password must contain:</p>
+						<ul className="list-disc list-inside">
+							<li>At least 8 characters</li>
+							<li>One uppercase letter</li>
+							<li>One lowercase letter</li>
+							<li>One number</li>
+							<li>One special character</li>
+						</ul>
 					</div>
+				</div>
+
+				<form onSubmit={handleReset} className="space-y-6">
+					<div className="space-y-2">
+						<Label htmlFor="newPassword">New Password</Label>
+						<Input
+							id="newPassword"
+							type="password"
+							value={newPassword}
+							onChange={(e) => setNewPassword(e.target.value)}
+							required
+							minLength={8}
+						/>
+					</div>
+
+					<div className="space-y-2">
+						<Label htmlFor="confirmPassword">Confirm Password</Label>
+						<Input
+							id="confirmPassword"
+							type="password"
+							value={confirmPassword}
+							onChange={(e) => setConfirmPassword(e.target.value)}
+							required
+							minLength={8}
+						/>
+					</div>
+
+					<Button
+						type="submit"
+						className="w-full bg-blue-600 hover:bg-blue-700"
+						disabled={resetting}
+					>
+						{resetting ? "Resetting..." : "Reset Password"}
+					</Button>
+				</form>
+			</div>
+		</div>
 	);
 };

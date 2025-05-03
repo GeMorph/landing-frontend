@@ -2,10 +2,51 @@ import {
 	createUserWithEmailAndPassword,
 	signInWithEmailAndPassword,
 	deleteUser,
+	sendPasswordResetEmail,
+	ActionCodeSettings,
+	confirmPasswordReset,
 } from "firebase/auth";
 import { auth } from "./firebase-config";
 
 const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000/api";
+
+// Password validation helper
+export function validatePassword(password: string): {
+	isValid: boolean;
+	message?: string;
+} {
+	if (password.length < 8) {
+		return {
+			isValid: false,
+			message: "Password must be at least 8 characters long",
+		};
+	}
+	if (!/[A-Z]/.test(password)) {
+		return {
+			isValid: false,
+			message: "Password must contain at least one uppercase letter",
+		};
+	}
+	if (!/[a-z]/.test(password)) {
+		return {
+			isValid: false,
+			message: "Password must contain at least one lowercase letter",
+		};
+	}
+	if (!/[0-9]/.test(password)) {
+		return {
+			isValid: false,
+			message: "Password must contain at least one number",
+		};
+	}
+	if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+		return {
+			isValid: false,
+			message: "Password must contain at least one special character",
+		};
+	}
+	return { isValid: true };
+}
 
 export async function signUp(
 	email: string,
@@ -98,4 +139,33 @@ export async function authenticatedFetch(
 		...options,
 		headers,
 	});
+}
+
+export async function resetPassword(email: string) {
+	try {
+		const actionCodeSettings: ActionCodeSettings = {
+			url: `${window.location.origin}/reset-password`,
+			handleCodeInApp: true,
+		};
+
+		await sendPasswordResetEmail(auth, email, actionCodeSettings);
+	} catch (error: any) {
+		throw new Error(error.message || "Failed to send password reset email");
+	}
+}
+
+export async function confirmResetPassword(
+	oobCode: string,
+	newPassword: string
+) {
+	const validation = validatePassword(newPassword);
+	if (!validation.isValid) {
+		throw new Error(validation.message);
+	}
+
+	try {
+		await confirmPasswordReset(auth, oobCode, newPassword);
+	} catch (error: any) {
+		throw new Error(error.message || "Failed to reset password");
+	}
 }

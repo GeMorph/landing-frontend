@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
+import { PasswordStrengthIndicator } from "@/components/forms/auth/PasswordStrengthIndicator";
 
 export const SignUpForm = () => {
 	const navigate = useNavigate();
@@ -22,6 +23,7 @@ export const SignUpForm = () => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [agreeToTerms, setAgreeToTerms] = useState(false);
+	const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -33,6 +35,32 @@ export const SignUpForm = () => {
 			toast.error("Passwords do not match");
 			return false;
 		}
+
+		if (formData.password.length < 8) {
+			toast.error("Password must be at least 8 characters long");
+			return false;
+		}
+
+		if (!/[A-Z]/.test(formData.password)) {
+			toast.error("Password must contain at least one uppercase letter");
+			return false;
+		}
+
+		if (!/[a-z]/.test(formData.password)) {
+			toast.error("Password must contain at least one lowercase letter");
+			return false;
+		}
+
+		if (!/[0-9]/.test(formData.password)) {
+			toast.error("Password must contain at least one number");
+			return false;
+		}
+
+		if (!/[^A-Za-z0-9]/.test(formData.password)) {
+			toast.error("Password must contain at least one special character");
+			return false;
+		}
+
 		if (!agreeToTerms) {
 			toast.error("Please agree to the Terms and Conditions");
 			return false;
@@ -121,6 +149,8 @@ export const SignUpForm = () => {
 						type={showPassword ? "text" : "password"}
 						value={formData.password}
 						onChange={handleChange}
+						onFocus={() => setIsPasswordFocused(true)}
+						onBlur={() => setIsPasswordFocused(false)}
 						placeholder="••••••••"
 						required
 						className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -137,6 +167,10 @@ export const SignUpForm = () => {
 						)}
 					</button>
 				</div>
+				<PasswordStrengthIndicator
+					password={formData.password}
+					isFocused={isPasswordFocused}
+				/>
 			</div>
 
 			<div className="space-y-2">
