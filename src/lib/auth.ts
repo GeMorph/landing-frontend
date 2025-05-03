@@ -6,6 +6,9 @@ import {
 	signOut,
 	sendEmailVerification,
 	updateProfile,
+	setPersistence,
+	browserLocalPersistence,
+	browserSessionPersistence,
 } from "firebase/auth";
 import { auth } from "./firebase-config";
 
@@ -74,8 +77,18 @@ export async function signUp(
 	}
 }
 
-export async function signIn(email: string, password: string) {
+export async function signIn(
+	email: string,
+	password: string,
+	rememberMe: boolean = false
+) {
 	try {
+		// Set persistence based on remember me
+		await setPersistence(
+			auth,
+			rememberMe ? browserLocalPersistence : browserSessionPersistence
+		);
+
 		const userCredential = await signInWithEmailAndPassword(
 			auth,
 			email,

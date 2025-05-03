@@ -16,6 +16,7 @@ export const SignInForm = () => {
 	});
 	const [loading, setLoading] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
+	const [rememberMe, setRememberMe] = useState(false);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -26,7 +27,7 @@ export const SignInForm = () => {
 		e.preventDefault();
 		setLoading(true);
 		try {
-			await signIn(formData.email, formData.password);
+			await signIn(formData.email, formData.password, rememberMe);
 			toast.success("Signed in successfully!");
 			navigate({ to: "/" });
 		} catch (error: any) {
@@ -88,6 +89,8 @@ export const SignInForm = () => {
 					<input
 						type="checkbox"
 						id="remember"
+						checked={rememberMe}
+						onChange={(e) => setRememberMe(e.target.checked)}
 						className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 					/>
 					<Label htmlFor="remember" className="text-sm text-gray-600">
