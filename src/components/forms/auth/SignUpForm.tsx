@@ -74,15 +74,18 @@ export const SignUpForm = () => {
 
 		setLoading(true);
 		try {
+			console.log("Form submitted, calling signUp...");
 			await signUp(
 				formData.email,
 				formData.password,
 				formData.firstName,
 				formData.lastName
 			);
+			console.log("SignUp completed successfully");
 			toast.success("Account created successfully! Please verify your email.");
 			navigate({ to: "/verify-email" });
 		} catch (error: any) {
+			console.error("Error in handleSubmit:", error);
 			toast.error(error.message || "Sign up failed");
 		} finally {
 			setLoading(false);

@@ -9,8 +9,12 @@ import {
 	setPersistence,
 	browserLocalPersistence,
 	browserSessionPersistence,
+	deleteUser,
 } from "firebase/auth";
 import { auth, actionCodeSettings } from "./firebase-config";
+import axios from "axios";
+
+const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000";
 
 // Password validation helper
 export function validatePassword(password: string): {
@@ -56,23 +60,64 @@ export async function signUp(
 	firstName: string,
 	lastName: string
 ) {
+	let firebaseUser = null;
 	try {
+		console.log("Starting signup process...");
+		// Create user in Firebase
 		const userCredential = await createUserWithEmailAndPassword(
 			auth,
 			email,
 			password
 		);
+		firebaseUser = userCredential.user;
+		console.log("Firebase user created:", firebaseUser.uid);
 
 		// Update profile with name
-		await updateProfile(userCredential.user, {
+		await updateProfile(firebaseUser, {
 			displayName: `${firstName} ${lastName}`,
 		});
+		console.log("Profile updated with name");
 
 		// Send verification email with action code settings
-		await sendEmailVerification(userCredential.user, actionCodeSettings);
+		await sendEmailVerification(firebaseUser, actionCodeSettings);
+		console.log("Verification email sent");
 
-		return userCredential.user;
+		// Get the Firebase ID token
+		const idToken = await firebaseUser.getIdToken();
+		console.log("Got Firebase ID token");
+
+		// Create user in our backend
+		console.log("Attempting to create user in backend...");
+		const response = await axios.post(
+			`${API_URL}/api/user/signup`,
+			{
+				email,
+				firstName,
+				lastName,
+			},
+			{
+				headers: {
+					"X-Firebase-Token": idToken,
+				},
+			}
+		);
+		console.log("Backend user created:", response.data);
+
+		return firebaseUser;
 	} catch (error: any) {
+		console.error("Error in signUp:", error);
+
+		// If we created a Firebase user but backend failed, delete the Firebase user
+		if (firebaseUser) {
+			try {
+				console.log("Deleting Firebase user due to backend failure...");
+				await deleteUser(firebaseUser);
+				console.log("Firebase user deleted successfully");
+			} catch (deleteError) {
+				console.error("Failed to delete Firebase user:", deleteError);
+			}
+		}
+
 		throw new Error(error.message);
 	}
 }
