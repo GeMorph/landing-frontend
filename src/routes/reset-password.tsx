@@ -11,7 +11,7 @@ function RouteComponent() {
 	return (
 		<>
 			<Header />
-			<AuthCard title="Reset Your Password">
+			<AuthCard >
 				<ResetPassword />
 			</AuthCard>
 		</>

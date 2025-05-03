@@ -19,6 +19,7 @@ import { Route as PrivacyImport } from './routes/privacy'
 import { Route as LoginImport } from './routes/login'
 import { Route as ForgotPasswordImport } from './routes/forgot-password'
 import { Route as EmailConfirmedImport } from './routes/email-confirmed'
+import { Route as AuthActionImport } from './routes/auth-action'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -71,6 +72,12 @@ const EmailConfirmedRoute = EmailConfirmedImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AuthActionRoute = AuthActionImport.update({
+  id: '/auth-action',
+  path: '/auth-action',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
@@ -86,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth-action': {
+      id: '/auth-action'
+      path: '/auth-action'
+      fullPath: '/auth-action'
+      preLoaderRoute: typeof AuthActionImport
       parentRoute: typeof rootRoute
     }
     '/email-confirmed': {
@@ -151,6 +165,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth-action': typeof AuthActionRoute
   '/email-confirmed': typeof EmailConfirmedRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
@@ -163,6 +178,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth-action': typeof AuthActionRoute
   '/email-confirmed': typeof EmailConfirmedRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
@@ -176,6 +192,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/auth-action': typeof AuthActionRoute
   '/email-confirmed': typeof EmailConfirmedRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
@@ -190,6 +207,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth-action'
     | '/email-confirmed'
     | '/forgot-password'
     | '/login'
@@ -201,6 +219,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth-action'
     | '/email-confirmed'
     | '/forgot-password'
     | '/login'
@@ -212,6 +231,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/auth-action'
     | '/email-confirmed'
     | '/forgot-password'
     | '/login'
@@ -225,6 +245,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthActionRoute: typeof AuthActionRoute
   EmailConfirmedRoute: typeof EmailConfirmedRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
@@ -237,6 +258,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthActionRoute: AuthActionRoute,
   EmailConfirmedRoute: EmailConfirmedRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
@@ -258,6 +280,7 @@ export const routeTree = rootRoute
       "filePath": "__root.ts",
       "children": [
         "/",
+        "/auth-action",
         "/email-confirmed",
         "/forgot-password",
         "/login",
@@ -270,6 +293,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.ts"
+    },
+    "/auth-action": {
+      "filePath": "auth-action.tsx"
     },
     "/email-confirmed": {
       "filePath": "email-confirmed.tsx"
