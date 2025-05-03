@@ -1,14 +1,13 @@
 import {
 	createUserWithEmailAndPassword,
 	signInWithEmailAndPassword,
-	deleteUser,
 	sendPasswordResetEmail,
-	ActionCodeSettings,
 	confirmPasswordReset,
+	signOut,
+	sendEmailVerification,
+	updateProfile,
 } from "firebase/auth";
 import { auth } from "./firebase-config";
-
-const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000/api";
 
 // Password validation helper
 export function validatePassword(password: string): {
@@ -55,60 +54,44 @@ export async function signUp(
 	lastName: string
 ) {
 	try {
-		// Create user in Firebase first
 		const userCredential = await createUserWithEmailAndPassword(
 			auth,
 			email,
 			password
 		);
 
-		// Get the ID token
-		const token = await userCredential.user.getIdToken();
+		// Update profile with name
+		await updateProfile(userCredential.user, {
+			displayName: `${firstName} ${lastName}`,
+		});
 
-		try {
-			// Create user in our backend
-			const response = await fetch(`${API_URL}/user/signup`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"X-Firebase-Token": token,
-				},
-				body: JSON.stringify({
-					email,
-					firstName,
-					lastName,
-				}),
-			});
+		// Send verification email
+		await sendEmailVerification(userCredential.user);
 
-			if (!response.ok) {
-				// If backend creation fails, delete the Firebase user
-				await deleteUser(userCredential.user);
-				throw new Error("Failed to create user in backend");
-			}
-
-			return userCredential;
-		} catch (error) {
-			// If any error occurs during backend creation, delete the Firebase user
-			await deleteUser(userCredential.user);
-			throw error;
-		}
+		return userCredential.user;
 	} catch (error: any) {
-		throw new Error(error.message || "Failed to sign up");
+		throw new Error(error.message);
 	}
 }
 
 export async function signIn(email: string, password: string) {
 	try {
-		// Sign in with Firebase
 		const userCredential = await signInWithEmailAndPassword(
 			auth,
 			email,
 			password
 		);
-
-		return userCredential;
+		return userCredential.user;
 	} catch (error: any) {
-		throw new Error(error.message || "Failed to sign in");
+		throw new Error(error.message);
+	}
+}
+
+export async function logout() {
+	try {
+		await signOut(auth);
+	} catch (error: any) {
+		throw new Error(error.message);
 	}
 }
 
@@ -143,14 +126,21 @@ export async function authenticatedFetch(
 
 export async function resetPassword(email: string) {
 	try {
-		const actionCodeSettings: ActionCodeSettings = {
-			url: `${window.location.origin}/reset-password`,
-			handleCodeInApp: true,
-		};
-
-		await sendPasswordResetEmail(auth, email, actionCodeSettings);
+		await sendPasswordResetEmail(auth, email);
 	} catch (error: any) {
-		throw new Error(error.message || "Failed to send password reset email");
+		throw new Error(error.message);
+	}
+}
+
+export async function resendVerificationEmail() {
+	try {
+		const user = auth.currentUser;
+		if (!user) {
+			throw new Error("No user is currently signed in");
+		}
+		await sendEmailVerification(user);
+	} catch (error: any) {
+		throw new Error(error.message);
 	}
 }
 

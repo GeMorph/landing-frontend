@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { motion } from "framer-motion";
 
 type AuthCardProps = {
-	title: string;
+	title?: string;
 	children: React.ReactNode;
 };
 
@@ -19,14 +19,16 @@ export const AuthCard: React.FC<AuthCardProps> = ({ title, children }) => {
 				animate={{ opacity: 1, scale: 1, y: 0 }}
 				transition={{ duration: 0.5, ease: "easeOut" }}
 			>
-				<motion.h2
-					className="text-2xl font-bold mb-6 text-center"
-					initial={{ opacity: 0, y: -10 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.2, duration: 0.4, ease: "easeOut" }}
-				>
-					{title}
-				</motion.h2>
+				{title && (
+					<motion.h2
+						className="text-2xl font-bold mb-6 text-center"
+						initial={{ opacity: 0, y: -10 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.2, duration: 0.4, ease: "easeOut" }}
+					>
+						{title}
+					</motion.h2>
+				)}
 				{children}
 			</motion.div>
 		</div>

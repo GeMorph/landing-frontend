@@ -11,15 +11,23 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as VerifyEmailImport } from './routes/verify-email'
 import { Route as TermsImport } from './routes/terms'
 import { Route as SignupImport } from './routes/signup'
 import { Route as ResetPasswordImport } from './routes/reset-password'
 import { Route as PrivacyImport } from './routes/privacy'
 import { Route as LoginImport } from './routes/login'
 import { Route as ForgotPasswordImport } from './routes/forgot-password'
+import { Route as EmailConfirmedImport } from './routes/email-confirmed'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const VerifyEmailRoute = VerifyEmailImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const TermsRoute = TermsImport.update({
   id: '/terms',
@@ -57,6 +65,12 @@ const ForgotPasswordRoute = ForgotPasswordImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const EmailConfirmedRoute = EmailConfirmedImport.update({
+  id: '/email-confirmed',
+  path: '/email-confirmed',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
@@ -72,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/email-confirmed': {
+      id: '/email-confirmed'
+      path: '/email-confirmed'
+      fullPath: '/email-confirmed'
+      preLoaderRoute: typeof EmailConfirmedImport
       parentRoute: typeof rootRoute
     }
     '/forgot-password': {
@@ -116,6 +137,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsImport
       parentRoute: typeof rootRoute
     }
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -123,84 +151,100 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/email-confirmed': typeof EmailConfirmedRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/verify-email': typeof VerifyEmailRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/email-confirmed': typeof EmailConfirmedRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/verify-email': typeof VerifyEmailRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/email-confirmed': typeof EmailConfirmedRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/verify-email': typeof VerifyEmailRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/email-confirmed'
     | '/forgot-password'
     | '/login'
     | '/privacy'
     | '/reset-password'
     | '/signup'
     | '/terms'
+    | '/verify-email'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/email-confirmed'
     | '/forgot-password'
     | '/login'
     | '/privacy'
     | '/reset-password'
     | '/signup'
     | '/terms'
+    | '/verify-email'
   id:
     | '__root__'
     | '/'
+    | '/email-confirmed'
     | '/forgot-password'
     | '/login'
     | '/privacy'
     | '/reset-password'
     | '/signup'
     | '/terms'
+    | '/verify-email'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EmailConfirmedRoute: typeof EmailConfirmedRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EmailConfirmedRoute: EmailConfirmedRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
 }
 
 export const routeTree = rootRoute
@@ -214,16 +258,21 @@ export const routeTree = rootRoute
       "filePath": "__root.ts",
       "children": [
         "/",
+        "/email-confirmed",
         "/forgot-password",
         "/login",
         "/privacy",
         "/reset-password",
         "/signup",
-        "/terms"
+        "/terms",
+        "/verify-email"
       ]
     },
     "/": {
       "filePath": "index.ts"
+    },
+    "/email-confirmed": {
+      "filePath": "email-confirmed.tsx"
     },
     "/forgot-password": {
       "filePath": "forgot-password.tsx"
@@ -242,6 +291,9 @@ export const routeTree = rootRoute
     },
     "/terms": {
       "filePath": "terms.tsx"
+    },
+    "/verify-email": {
+      "filePath": "verify-email.tsx"
     }
   }
 }

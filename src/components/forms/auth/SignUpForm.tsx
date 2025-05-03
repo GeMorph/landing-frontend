@@ -80,8 +80,8 @@ export const SignUpForm = () => {
 				formData.firstName,
 				formData.lastName
 			);
-			toast.success("Account created successfully!");
-			navigate({ to: "/" });
+			toast.success("Account created successfully! Please verify your email.");
+			navigate({ to: "/verify-email" });
 		} catch (error: any) {
 			toast.error(error.message || "Sign up failed");
 		} finally {
