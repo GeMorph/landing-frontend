@@ -10,7 +10,7 @@ import {
 	browserLocalPersistence,
 	browserSessionPersistence,
 } from "firebase/auth";
-import { auth } from "./firebase-config";
+import { auth, actionCodeSettings } from "./firebase-config";
 
 // Password validation helper
 export function validatePassword(password: string): {
@@ -68,8 +68,8 @@ export async function signUp(
 			displayName: `${firstName} ${lastName}`,
 		});
 
-		// Send verification email
-		await sendEmailVerification(userCredential.user);
+		// Send verification email with action code settings
+		await sendEmailVerification(userCredential.user, actionCodeSettings);
 
 		return userCredential.user;
 	} catch (error: any) {

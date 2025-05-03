@@ -17,3 +17,13 @@ export const db = getFirestore(app);
 
 // Configure language
 auth.useDeviceLanguage();
+
+// Configure action code settings for email verification
+const actionCodeSettings = {
+	url: import.meta.env.PROD
+		? "http://gemorph-frontend-s3-bucket.s3-website-us-east-1.amazonaws.com/auth-action" // Replace with your actual domain
+		: "http://localhost:5172/auth-action",
+	handleCodeInApp: true,
+};
+
+export { actionCodeSettings };
