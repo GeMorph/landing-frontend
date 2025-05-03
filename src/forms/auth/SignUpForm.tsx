@@ -15,6 +15,7 @@ export const SignUpForm = () => {
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -106,8 +107,13 @@ export const SignUpForm = () => {
 					onChange={(e) => setPassword(e.target.value)}
 					required
 					minLength={8}
+					onFocus={() => setIsPasswordFocused(true)}
+					onBlur={() => setIsPasswordFocused(false)}
 				/>
-				<PasswordStrengthIndicator password={password} />
+				<PasswordStrengthIndicator
+					password={password}
+					isFocused={isPasswordFocused}
+				/>
 			</div>
 
 			<div className="space-y-2">

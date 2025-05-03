@@ -89,6 +89,10 @@ export const SignUpForm = () => {
 		}
 	};
 
+	const handleCheckboxChange = (checked: boolean) => {
+		setAgreeToTerms(checked);
+	};
+
 	return (
 		<form onSubmit={handleSubmit} className="space-y-4">
 			<div className="grid grid-cols-2 gap-4">
@@ -206,7 +210,7 @@ export const SignUpForm = () => {
 				<Checkbox
 					id="terms"
 					checked={agreeToTerms}
-					onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
+					onCheckedChange={handleCheckboxChange}
 					className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 				/>
 				<Label htmlFor="terms" className="text-sm text-gray-600">

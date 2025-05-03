@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 import { Link } from "@tanstack/react-router";
