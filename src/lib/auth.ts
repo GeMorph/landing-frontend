@@ -103,6 +103,10 @@ export async function signUp(
 		);
 		console.log("Backend user created:", response.data);
 
+		// Automatically sign in the user
+		await setPersistence(auth, browserLocalPersistence);
+		await signInWithEmailAndPassword(auth, email, password);
+
 		return firebaseUser;
 	} catch (error: any) {
 		console.error("Error in signUp:", error);
