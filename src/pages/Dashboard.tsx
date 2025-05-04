@@ -3,10 +3,12 @@ import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import axios from "axios";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { FileText, Plus } from "lucide-react";
+import { FileText, Plus, Search } from "lucide-react";
 
 interface Case {
 	id: string;
@@ -15,6 +17,7 @@ interface Case {
 	priority: "low" | "medium" | "high" | "urgent";
 	status: "open" | "in_progress" | "resolved" | "closed";
 	createdAt: string;
+	tags: string[];
 }
 
 const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000/api";
@@ -24,6 +27,13 @@ export const Dashboard = () => {
 	const [cases, setCases] = useState<Case[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [hasFetched, setHasFetched] = useState(false);
+	const [searchQuery, setSearchQuery] = useState("");
+	const [selectedStatus, setSelectedStatus] = useState<Case["status"] | "all">(
+		"all"
+	);
+	const [selectedPriority, setSelectedPriority] = useState<
+		Case["priority"] | "all"
+	>("all");
 
 	useEffect(() => {
 		if (!user || hasFetched) return;
@@ -79,98 +89,184 @@ export const Dashboard = () => {
 		}
 	};
 
+	const filteredCases = cases.filter((caseItem) => {
+		const matchesSearch =
+			caseItem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			caseItem.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			caseItem.tags.some((tag) =>
+				tag.toLowerCase().includes(searchQuery.toLowerCase())
+			);
+
+		const matchesStatus =
+			selectedStatus === "all" || caseItem.status === selectedStatus;
+		const matchesPriority =
+			selectedPriority === "all" || caseItem.priority === selectedPriority;
+
+		return matchesSearch && matchesStatus && matchesPriority;
+	});
+
+	const statusOptions: Array<Case["status"] | "all"> = [
+		"all",
+		"open",
+		"in_progress",
+		"resolved",
+		"closed",
+	];
+	const priorityOptions: Array<Case["priority"] | "all"> = [
+		"all",
+		"low",
+		"medium",
+		"high",
+		"urgent",
+	];
+
 	return (
 		<DashboardLayout>
-			<div className="flex h-[40px] items-center justify-between">
-				<div>
-					<h1 className="text-2xl font-semibold">My Cases</h1>
-					<p className="text-sm text-muted-foreground">
-						{loading
-							? "Loading cases..."
-							: cases.length > 0
-								? `${cases.length} case${cases.length === 1 ? "" : "s"} found`
-								: "No cases found"}
-					</p>
-				</div>
-				<Button
-					asChild
-					size="sm"
-					className="bg-[#0F172A] text-white hover:bg-[#1E293B]"
-				>
-					<Link to="/submit-case" className="gap-2">
-						<Plus className="h-4 w-4" />
-						Submit New Case
-					</Link>
-				</Button>
-			</div>
-
-			{loading ? (
-				<div className="mt-8 flex justify-center">
-					<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-				</div>
-			) : !cases || cases.length === 0 ? (
-				<div className="mt-16 flex flex-col items-center justify-center text-center">
-					<FileText className="h-12 w-12 text-muted-foreground" />
-					<h3 className="mt-4 text-lg font-semibold">No cases yet</h3>
-					<p className="mt-2 text-sm text-muted-foreground">
-						Get started by submitting a new case.
-					</p>
-					<Button asChild variant="outline" className="mt-4 gap-2">
-						<Link to="/submit-case">
+			<div className="flex flex-col gap-4">
+				<div className="flex items-center justify-between">
+					<div>
+						<h1 className="text-2xl font-semibold">My Cases</h1>
+						<p className="text-sm text-muted-foreground">
+							{loading
+								? "Loading cases..."
+								: filteredCases.length > 0
+									? `${filteredCases.length} case${filteredCases.length === 1 ? "" : "s"} found`
+									: "No cases found"}
+						</p>
+					</div>
+					<Button
+						asChild
+						size="sm"
+						className="bg-[#0F172A] text-white hover:bg-[#1E293B]"
+					>
+						<Link to="/submit-case" className="gap-2">
 							<Plus className="h-4 w-4" />
-							Submit Case
+							Submit New Case
 						</Link>
 					</Button>
 				</div>
-			) : (
-				<div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-					{cases.map((caseItem) => (
-						<div
-							key={caseItem.id}
-							className="group relative overflow-hidden rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md"
+
+				<div className="flex flex-col gap-4 md:flex-row md:items-center">
+					<div className="relative flex-1">
+						<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+						<Input
+							placeholder="Search cases..."
+							className="pl-9"
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
+					</div>
+					<div className="flex flex-wrap gap-2">
+						<select
+							className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+							value={selectedStatus}
+							onChange={(e) =>
+								setSelectedStatus(e.target.value as Case["status"] | "all")
+							}
 						>
-							<div className="flex items-start justify-between">
-								<h2 className="text-lg font-semibold tracking-tight">
-									{caseItem.title}
-								</h2>
-								<div className="flex gap-2">
-									<span
-										className={cn(
-											"rounded-full px-2.5 py-1 text-xs font-medium",
-											getPriorityColor(caseItem.priority)
-										)}
-									>
-										{caseItem.priority}
+							{statusOptions.map((status) => (
+								<option key={status} value={status}>
+									{status === "all" ? "All Status" : status.replace("_", " ")}
+								</option>
+							))}
+						</select>
+						<select
+							className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+							value={selectedPriority}
+							onChange={(e) =>
+								setSelectedPriority(e.target.value as Case["priority"] | "all")
+							}
+						>
+							{priorityOptions.map((priority) => (
+								<option key={priority} value={priority}>
+									{priority === "all" ? "All Priorities" : priority}
+								</option>
+							))}
+						</select>
+					</div>
+				</div>
+
+				{loading ? (
+					<div className="mt-8 flex justify-center">
+						<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+					</div>
+				) : filteredCases.length === 0 ? (
+					<div className="mt-16 flex flex-col items-center justify-center text-center">
+						<FileText className="h-12 w-12 text-muted-foreground" />
+						<h3 className="mt-4 text-lg font-semibold">No cases found</h3>
+						<p className="mt-2 text-sm text-muted-foreground">
+							{searchQuery ||
+							selectedStatus !== "all" ||
+							selectedPriority !== "all"
+								? "Try adjusting your search or filters"
+								: "Get started by submitting a new case."}
+						</p>
+						<Button asChild variant="outline" className="mt-4 gap-2">
+							<Link to="/submit-case">
+								<Plus className="h-4 w-4" />
+								Submit Case
+							</Link>
+						</Button>
+					</div>
+				) : (
+					<div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+						{filteredCases.map((caseItem) => (
+							<div
+								key={caseItem.id}
+								className="group relative overflow-hidden rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md"
+							>
+								<div className="flex items-start justify-between">
+									<h2 className="text-lg font-semibold tracking-tight">
+										{caseItem.title}
+									</h2>
+									<div className="flex gap-2">
+										<span
+											className={cn(
+												"rounded-full px-2.5 py-1 text-xs font-medium",
+												getPriorityColor(caseItem.priority)
+											)}
+										>
+											{caseItem.priority}
+										</span>
+										<span
+											className={cn(
+												"rounded-full px-2.5 py-1 text-xs font-medium",
+												getStatusColor(caseItem.status)
+											)}
+										>
+											{caseItem.status.replace("_", " ")}
+										</span>
+									</div>
+								</div>
+								<p className="mt-3 line-clamp-3 text-sm text-muted-foreground">
+									{caseItem.description}
+								</p>
+								{caseItem.tags && caseItem.tags.length > 0 && (
+									<div className="mt-3 flex flex-wrap gap-2">
+										{caseItem.tags.map((tag) => (
+											<Badge key={tag} variant="secondary">
+												{tag}
+											</Badge>
+										))}
+									</div>
+								)}
+								<div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+									<span>
+										Created: {new Date(caseItem.createdAt).toLocaleDateString()}
 									</span>
-									<span
-										className={cn(
-											"rounded-full px-2.5 py-1 text-xs font-medium",
-											getStatusColor(caseItem.status)
-										)}
+									<Button
+										variant="ghost"
+										size="sm"
+										className="h-8 px-2 text-xs opacity-0 transition-opacity group-hover:opacity-100"
 									>
-										{caseItem.status.replace("_", " ")}
-									</span>
+										View Details
+									</Button>
 								</div>
 							</div>
-							<p className="mt-3 line-clamp-3 text-sm text-muted-foreground">
-								{caseItem.description}
-							</p>
-							<div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-								<span>
-									Created: {new Date(caseItem.createdAt).toLocaleDateString()}
-								</span>
-								<Button
-									variant="ghost"
-									size="sm"
-									className="h-8 px-2 text-xs opacity-0 transition-opacity group-hover:opacity-100"
-								>
-									View Details
-								</Button>
-							</div>
-						</div>
-					))}
-				</div>
-			)}
+						))}
+					</div>
+				)}
+			</div>
 		</DashboardLayout>
 	);
 };
