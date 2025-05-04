@@ -154,7 +154,7 @@ export const Header = () => {
 						<div className="hidden lg:flex items-center gap-4">
 							<Button
 								variant="ghost"
-								onClick={() => handleNavigation("/dashboard/submit-case")}
+								onClick={() => handleNavigation("/submit-case")}
 							>
 								Submit Case
 							</Button>

@@ -22,7 +22,7 @@ export default function EmailConfirmed() {
 
 			<div className="flex flex-col items-center">
 				<Button
-					onClick={() => navigate({ to: "/" })}
+					onClick={() => navigate({ to: "/dashboard" })}
 					className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200"
 				>
 					Continue to Dashboard
