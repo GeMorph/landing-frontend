@@ -120,9 +120,23 @@ export const Header = () => {
 										<Button
 											variant="ghost"
 											className="w-full justify-start"
+											onClick={() => handleNavigation("/dashboard")}
+										>
+											Dashboard
+										</Button>
+										<Button
+											variant="ghost"
+											className="w-full justify-start"
 											onClick={() => handleNavigation("/submit-case")}
 										>
 											Submit Case
+										</Button>
+										<Button
+											variant="ghost"
+											className="w-full justify-start"
+											onClick={() => handleNavigation("/reports")}
+										>
+											Reports
 										</Button>
 										<Button
 											variant="ghost"
@@ -140,7 +154,7 @@ export const Header = () => {
 						<div className="hidden lg:flex items-center gap-4">
 							<Button
 								variant="ghost"
-								onClick={() => handleNavigation("/submit-case")}
+								onClick={() => handleNavigation("/dashboard/submit-case")}
 							>
 								Submit Case
 							</Button>
