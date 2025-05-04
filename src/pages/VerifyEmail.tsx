@@ -51,7 +51,7 @@ export default function VerifyEmail() {
 							{loading ? "Sending..." : "Resend Verification Email"}
 						</Button>
 						<button
-							onClick={() => navigate({ to: "/" })}
+							onClick={() => navigate({ to: "/dashboard" })}
 							className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline"
 						>
 							Back to Home

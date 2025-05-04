@@ -29,7 +29,7 @@ export const SignInForm = () => {
 		try {
 			await signIn(formData.email, formData.password, rememberMe);
 			toast.success("Signed in successfully!");
-			navigate({ to: "/" });
+			navigate({ to: "/dashboard" });
 		} catch (error: any) {
 			toast.error(error.message || "Sign in failed");
 		} finally {
