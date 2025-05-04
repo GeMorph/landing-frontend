@@ -13,8 +13,10 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as VerifyEmailImport } from './routes/verify-email'
 import { Route as TermsImport } from './routes/terms'
+import { Route as SubmitCaseImport } from './routes/submit-case'
 import { Route as SignupImport } from './routes/signup'
 import { Route as ResetPasswordImport } from './routes/reset-password'
+import { Route as ReportsImport } from './routes/reports'
 import { Route as PrivacyImport } from './routes/privacy'
 import { Route as LoginImport } from './routes/login'
 import { Route as ForgotPasswordImport } from './routes/forgot-password'
@@ -22,8 +24,6 @@ import { Route as EmailConfirmedImport } from './routes/email-confirmed'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as AuthActionImport } from './routes/auth-action'
 import { Route as IndexImport } from './routes/index'
-import { Route as DashboardSubmitCaseImport } from './routes/dashboard/submit-case'
-import { Route as DashboardReportsImport } from './routes/dashboard/reports'
 
 // Create/Update Routes
 
@@ -39,6 +39,12 @@ const TermsRoute = TermsImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const SubmitCaseRoute = SubmitCaseImport.update({
+  id: '/submit-case',
+  path: '/submit-case',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const SignupRoute = SignupImport.update({
   id: '/signup',
   path: '/signup',
@@ -48,6 +54,12 @@ const SignupRoute = SignupImport.update({
 const ResetPasswordRoute = ResetPasswordImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ReportsRoute = ReportsImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -91,18 +103,6 @@ const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
-} as any)
-
-const DashboardSubmitCaseRoute = DashboardSubmitCaseImport.update({
-  id: '/submit-case',
-  path: '/submit-case',
-  getParentRoute: () => DashboardRoute,
-} as any)
-
-const DashboardReportsRoute = DashboardReportsImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => DashboardRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -158,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyImport
       parentRoute: typeof rootRoute
     }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsImport
+      parentRoute: typeof rootRoute
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -170,6 +177,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupImport
+      parentRoute: typeof rootRoute
+    }
+    '/submit-case': {
+      id: '/submit-case'
+      path: '/submit-case'
+      fullPath: '/submit-case'
+      preLoaderRoute: typeof SubmitCaseImport
       parentRoute: typeof rootRoute
     }
     '/terms': {
@@ -186,86 +200,58 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyEmailImport
       parentRoute: typeof rootRoute
     }
-    '/dashboard/reports': {
-      id: '/dashboard/reports'
-      path: '/reports'
-      fullPath: '/dashboard/reports'
-      preLoaderRoute: typeof DashboardReportsImport
-      parentRoute: typeof DashboardImport
-    }
-    '/dashboard/submit-case': {
-      id: '/dashboard/submit-case'
-      path: '/submit-case'
-      fullPath: '/dashboard/submit-case'
-      preLoaderRoute: typeof DashboardSubmitCaseImport
-      parentRoute: typeof DashboardImport
-    }
   }
 }
 
 // Create and export the route tree
 
-interface DashboardRouteChildren {
-  DashboardReportsRoute: typeof DashboardReportsRoute
-  DashboardSubmitCaseRoute: typeof DashboardSubmitCaseRoute
-}
-
-const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardReportsRoute: DashboardReportsRoute,
-  DashboardSubmitCaseRoute: DashboardSubmitCaseRoute,
-}
-
-const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
-  DashboardRouteChildren,
-)
-
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth-action': typeof AuthActionRoute
-  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard': typeof DashboardRoute
   '/email-confirmed': typeof EmailConfirmedRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
+  '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/submit-case': typeof SubmitCaseRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/dashboard/reports': typeof DashboardReportsRoute
-  '/dashboard/submit-case': typeof DashboardSubmitCaseRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth-action': typeof AuthActionRoute
-  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard': typeof DashboardRoute
   '/email-confirmed': typeof EmailConfirmedRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
+  '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/submit-case': typeof SubmitCaseRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/dashboard/reports': typeof DashboardReportsRoute
-  '/dashboard/submit-case': typeof DashboardSubmitCaseRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/auth-action': typeof AuthActionRoute
-  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard': typeof DashboardRoute
   '/email-confirmed': typeof EmailConfirmedRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
+  '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/submit-case': typeof SubmitCaseRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/dashboard/reports': typeof DashboardReportsRoute
-  '/dashboard/submit-case': typeof DashboardSubmitCaseRoute
 }
 
 export interface FileRouteTypes {
@@ -278,12 +264,12 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/privacy'
+    | '/reports'
     | '/reset-password'
     | '/signup'
+    | '/submit-case'
     | '/terms'
     | '/verify-email'
-    | '/dashboard/reports'
-    | '/dashboard/submit-case'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -293,12 +279,12 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/privacy'
+    | '/reports'
     | '/reset-password'
     | '/signup'
+    | '/submit-case'
     | '/terms'
     | '/verify-email'
-    | '/dashboard/reports'
-    | '/dashboard/submit-case'
   id:
     | '__root__'
     | '/'
@@ -308,25 +294,27 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/privacy'
+    | '/reports'
     | '/reset-password'
     | '/signup'
+    | '/submit-case'
     | '/terms'
     | '/verify-email'
-    | '/dashboard/reports'
-    | '/dashboard/submit-case'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthActionRoute: typeof AuthActionRoute
-  DashboardRoute: typeof DashboardRouteWithChildren
+  DashboardRoute: typeof DashboardRoute
   EmailConfirmedRoute: typeof EmailConfirmedRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   PrivacyRoute: typeof PrivacyRoute
+  ReportsRoute: typeof ReportsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  SubmitCaseRoute: typeof SubmitCaseRoute
   TermsRoute: typeof TermsRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
 }
@@ -334,13 +322,15 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthActionRoute: AuthActionRoute,
-  DashboardRoute: DashboardRouteWithChildren,
+  DashboardRoute: DashboardRoute,
   EmailConfirmedRoute: EmailConfirmedRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   PrivacyRoute: PrivacyRoute,
+  ReportsRoute: ReportsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  SubmitCaseRoute: SubmitCaseRoute,
   TermsRoute: TermsRoute,
   VerifyEmailRoute: VerifyEmailRoute,
 }
@@ -362,8 +352,10 @@ export const routeTree = rootRoute
         "/forgot-password",
         "/login",
         "/privacy",
+        "/reports",
         "/reset-password",
         "/signup",
+        "/submit-case",
         "/terms",
         "/verify-email"
       ]
@@ -375,11 +367,7 @@ export const routeTree = rootRoute
       "filePath": "auth-action.tsx"
     },
     "/dashboard": {
-      "filePath": "dashboard.tsx",
-      "children": [
-        "/dashboard/reports",
-        "/dashboard/submit-case"
-      ]
+      "filePath": "dashboard.tsx"
     },
     "/email-confirmed": {
       "filePath": "email-confirmed.tsx"
@@ -393,25 +381,23 @@ export const routeTree = rootRoute
     "/privacy": {
       "filePath": "privacy.tsx"
     },
+    "/reports": {
+      "filePath": "reports.tsx"
+    },
     "/reset-password": {
       "filePath": "reset-password.tsx"
     },
     "/signup": {
       "filePath": "signup.tsx"
     },
+    "/submit-case": {
+      "filePath": "submit-case.tsx"
+    },
     "/terms": {
       "filePath": "terms.tsx"
     },
     "/verify-email": {
       "filePath": "verify-email.tsx"
-    },
-    "/dashboard/reports": {
-      "filePath": "dashboard/reports.tsx",
-      "parent": "/dashboard"
-    },
-    "/dashboard/submit-case": {
-      "filePath": "dashboard/submit-case.tsx",
-      "parent": "/dashboard"
     }
   }
 }

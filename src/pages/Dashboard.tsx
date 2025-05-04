@@ -38,11 +38,12 @@ export const Dashboard = () => {
 				});
 
 				if (response.data.success) {
-					setCases(response.data.data);
+					setCases(response.data.data || []);
 				}
 			} catch (error: any) {
 				console.error("Error fetching cases:", error);
 				toast.error(error.response?.data?.message || "Failed to fetch cases");
+				setCases([]);
 			} finally {
 				setLoading(false);
 				setHasFetched(true);
@@ -84,7 +85,11 @@ export const Dashboard = () => {
 				<div>
 					<h1 className="text-2xl font-semibold">My Cases</h1>
 					<p className="text-sm text-muted-foreground">
-						{loading ? "Loading cases..." : "No cases found"}
+						{loading
+							? "Loading cases..."
+							: cases.length > 0
+								? `${cases.length} case${cases.length === 1 ? "" : "s"} found`
+								: "No cases found"}
 					</p>
 				</div>
 				<Button
@@ -92,7 +97,7 @@ export const Dashboard = () => {
 					size="sm"
 					className="bg-[#0F172A] text-white hover:bg-[#1E293B]"
 				>
-					<Link to="/dashboard/submit-case" className="gap-2">
+					<Link to="/submit-case" className="gap-2">
 						<Plus className="h-4 w-4" />
 						Submit New Case
 					</Link>
@@ -103,7 +108,7 @@ export const Dashboard = () => {
 				<div className="mt-8 flex justify-center">
 					<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
 				</div>
-			) : cases.length === 0 ? (
+			) : !cases || cases.length === 0 ? (
 				<div className="mt-16 flex flex-col items-center justify-center text-center">
 					<FileText className="h-12 w-12 text-muted-foreground" />
 					<h3 className="mt-4 text-lg font-semibold">No cases yet</h3>
@@ -111,7 +116,7 @@ export const Dashboard = () => {
 						Get started by submitting a new case.
 					</p>
 					<Button asChild variant="outline" className="mt-4 gap-2">
-						<Link to="/dashboard/submit-case">
+						<Link to="/submit-case">
 							<Plus className="h-4 w-4" />
 							Submit Case
 						</Link>

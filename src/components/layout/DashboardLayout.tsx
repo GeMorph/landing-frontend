@@ -16,7 +16,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 		},
 		{
 			title: "Reports",
-			href: "/dashboard/reports",
+			href: "/reports",
 			icon: "📊",
 		},
 	];
@@ -24,17 +24,21 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 	return (
 		<div className="flex h-[calc(100vh-4rem)] bg-background">
 			{/* Sidebar - hidden on mobile, shown on desktop */}
-			<aside className="hidden border-r bg-white md:block md:w-[240px]">
+			<aside className="hidden border-r border-border bg-card md:block md:w-[240px]">
 				<div className="p-3">
-					<h2 className="mb-2 px-2 text-lg font-semibold">Dashboard</h2>
+					<h2 className="mb-2 px-2 text-lg font-semibold tracking-tight">
+						Dashboard
+					</h2>
 					<nav>
 						{navItems.map((item) => (
 							<Link
 								key={item.href}
 								to={item.href}
 								className={cn(
-									"mb-0.5 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-100",
-									location.pathname === item.href && "bg-gray-50"
+									"mb-0.5 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+									location.pathname === item.href
+										? "bg-accent text-accent-foreground"
+										: "text-muted-foreground"
 								)}
 							>
 								<span className="text-base">{item.icon}</span>
