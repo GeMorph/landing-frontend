@@ -1,17 +1,23 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/useAuth";
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
 
 export const Header = () => {
 	const navigate = useNavigate();
-	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const { user, signOut } = useAuth();
 	const [theme, setTheme] = useState<"light" | "dark">("light");
-	const dropdownRef = useRef<HTMLDivElement>(null);
-	const hamburgerRef = useRef<HTMLSpanElement>(null);
 
 	useEffect(() => {
 		const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
@@ -28,53 +34,17 @@ export const Header = () => {
 		document.documentElement.classList.toggle("dark", newTheme === "dark");
 	};
 
-	// Close dropdown if clicking outside
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (
-				dropdownRef.current &&
-				!dropdownRef.current.contains(event.target as Node) &&
-				!hamburgerRef.current?.contains(event.target as Node)
-			) {
-				setIsMenuOpen(false);
-			}
-		};
-
-		if (isMenuOpen) {
-			document.addEventListener("mousedown", handleClickOutside);
-		} else {
-			document.removeEventListener("mousedown", handleClickOutside);
-		}
-
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutside);
-		};
-	}, [isMenuOpen]);
-
 	const handleNavigation = (path: string) => {
 		navigate({ to: path });
-		setIsMenuOpen(false);
 	};
 
-	const handleHashNavigation = (hash: string) => {
-		// First navigate to home if we're not already there
-		if (window.location.pathname !== "/") {
+	const handleSignOut = async () => {
+		try {
+			await signOut();
 			navigate({ to: "/" });
-			// Wait for navigation to complete before scrolling
-			setTimeout(() => {
-				const element = document.getElementById(hash.slice(1));
-				if (element) {
-					element.scrollIntoView({ behavior: "smooth" });
-				}
-			}, 100);
-		} else {
-			// If we're already on home, just scroll
-			const element = document.getElementById(hash.slice(1));
-			if (element) {
-				element.scrollIntoView({ behavior: "smooth" });
-			}
+		} catch (error) {
+			console.error("Error signing out:", error);
 		}
-		setIsMenuOpen(false);
 	};
 
 	return (
@@ -95,30 +65,9 @@ export const Header = () => {
 					<div className="text-lg md:text-xl lg:text-2xl">GeMorph</div>
 				</div>
 			</Link>
-			{/* Navigation for lg and xl */}
-			<nav className="hidden lg:flex space-x-6 text-sm font-medium">
-				<button
-					onClick={() => handleHashNavigation("#about")}
-					className="font-medium"
-				>
-					About
-				</button>
-				<button
-					onClick={() => handleHashNavigation("#services")}
-					className="font-medium"
-				>
-					Services
-				</button>
-				<button
-					onClick={() => handleHashNavigation("#contact")}
-					className="font-medium"
-				>
-					Contact
-				</button>
-			</nav>
 
-			{/* Right-side buttons + theme toggle for lg and xl */}
-			<div className="hidden lg:flex items-center gap-2">
+			{/* Right-side buttons + theme toggle */}
+			<div className="flex items-center gap-2">
 				<Button
 					variant="ghost"
 					size="icon"
@@ -153,86 +102,110 @@ export const Header = () => {
 					</AnimatePresence>
 				</Button>
 
-				<Button
-					variant="outline"
-					className="font-medium"
-					onClick={() => handleNavigation("/signup")}
-				>
-					Signup
-				</Button>
-				<Button
-					className="font-medium"
-					onClick={() => handleNavigation("/login")}
-				>
-					Login
-				</Button>
-			</div>
+				{user ? (
+					<>
+						{/* Mobile Menu */}
+						<div className="lg:hidden">
+							<Sheet>
+								<SheetTrigger asChild>
+									<Button variant="ghost" size="icon">
+										<GiHamburgerMenu className="w-5 h-5" />
+									</Button>
+								</SheetTrigger>
+								<SheetContent side="right">
+									<SheetHeader>
+										<SheetTitle>Menu</SheetTitle>
+									</SheetHeader>
+									<div className="flex flex-col gap-4 mt-8">
+										<Button
+											variant="ghost"
+											className="w-full justify-start"
+											onClick={() => handleNavigation("/submit-case")}
+										>
+											Submit Case
+										</Button>
+										<Button
+											variant="ghost"
+											className="w-full justify-start text-red-500"
+											onClick={handleSignOut}
+										>
+											Sign Out
+										</Button>
+									</div>
+								</SheetContent>
+							</Sheet>
+						</div>
 
-			{/* Mobile / Tablet Section */}
-			<div className="lg:hidden flex items-center gap-2">
-				{/* Theme Toggle Always Visible */}
-				<Button variant="ghost" size="icon" onClick={toggleTheme}>
-					{theme === "light" ? (
-						<Moon className="w-4 h-4" />
-					) : (
-						<Sun className="w-4 h-4" />
-					)}
-				</Button>
+						{/* Desktop Menu */}
+						<div className="hidden lg:flex items-center gap-4">
+							<Button
+								variant="ghost"
+								onClick={() => handleNavigation("/submit-case")}
+							>
+								Submit Case
+							</Button>
+							<Button
+								variant="ghost"
+								className="text-red-500"
+								onClick={handleSignOut}
+							>
+								<LogOut className="w-4 h-4 mr-2" />
+								Sign Out
+							</Button>
+						</div>
+					</>
+				) : (
+					<>
+						{/* Mobile Menu for Non-Authenticated Users */}
+						<div className="lg:hidden">
+							<Sheet>
+								<SheetTrigger asChild>
+									<Button variant="ghost" size="icon">
+										<GiHamburgerMenu className="w-5 h-5" />
+									</Button>
+								</SheetTrigger>
+								<SheetContent side="right">
+									<SheetHeader>
+										<SheetTitle>Menu</SheetTitle>
+									</SheetHeader>
+									<div className="flex flex-col gap-4 mt-8">
+										<Button
+											variant="ghost"
+											className="w-full justify-start"
+											onClick={() => handleNavigation("/login")}
+										>
+											Login
+										</Button>
+										<Button
+											variant="ghost"
+											className="w-full justify-start"
+											onClick={() => handleNavigation("/signup")}
+										>
+											Sign Up
+										</Button>
+									</div>
+								</SheetContent>
+							</Sheet>
+						</div>
 
-				{/* Hamburger Menu Icon */}
-				<span ref={hamburgerRef}>
-					<GiHamburgerMenu
-						onClick={() => setIsMenuOpen(!isMenuOpen)}
-						className="text-2xl cursor-pointer"
-					/>
-				</span>
-
-				{/* Dropdown Menu */}
-				<AnimatePresence>
-					{isMenuOpen && (
-						<motion.div
-							key="dropdown"
-							initial={{ opacity: 0, y: -10 }}
-							animate={{ opacity: 1, y: 0 }}
-							exit={{ opacity: 0, y: -10 }}
-							transition={{ duration: 0.2 }}
-							className="text-xs md:text-sm absolute top-16 right-6 bg-popover text-popover-foreground shadow-lg rounded-md py-2 px-4 w-48 z-50"
-						>
-							<button
-								onClick={() => handleHashNavigation("#about")}
-								className="block w-full text-left py-2 font-medium"
+						{/* Desktop Menu for Non-Authenticated Users */}
+						<div className="hidden lg:flex items-center gap-2">
+							<Button
+								variant="outline"
+								className="font-medium"
+								onClick={() => handleNavigation("/signup")}
 							>
-								About
-							</button>
-							<button
-								onClick={() => handleHashNavigation("#services")}
-								className="block w-full text-left py-2 font-medium"
+								Sign Up
+							</Button>
+							<Button
+								className="font-medium"
+								onClick={() => handleNavigation("/login")}
 							>
-								Services
-							</button>
-							<button
-								onClick={() => handleHashNavigation("#contact")}
-								className="block w-full text-left py-2 font-medium"
-							>
-								Contact
-							</button>
-							<div className="border-t mt-2">
-								<button
-									onClick={() => handleNavigation("/signup")}
-									className="block w-full text-left py-2 font-medium hover:text-primary"
-								>
-									Signup
-								</button>
-								<button
-									onClick={() => handleNavigation("/login")}
-									className="block w-full text-left py-2 font-medium hover:text-primary"
-								>
-									Login
-								</button>
-							</div>
-						</motion.div>
-					)}
-				</AnimatePresence>
+								Login
+							</Button>
+						</div>
+					</>
+				)}
 			</div>
 		</header>
 	);
