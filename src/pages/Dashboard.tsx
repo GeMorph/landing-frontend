@@ -18,6 +18,16 @@ interface Case {
 	status: "open" | "in_progress" | "resolved" | "closed";
 	createdAt: string;
 	tags: string[];
+	user: {
+		_id: string;
+		name: string;
+		email: string;
+	} | null;
+	assignedTo: {
+		_id: string;
+		name: string;
+		email: string;
+	} | null;
 }
 
 const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000/api";
@@ -34,9 +44,28 @@ export const Dashboard = () => {
 	const [selectedPriority, setSelectedPriority] = useState<
 		Case["priority"] | "all"
 	>("all");
+	const [isAdmin, setIsAdmin] = useState(false);
 
 	useEffect(() => {
 		if (!user || hasFetched) return;
+
+		const fetchUserRole = async () => {
+			try {
+				const token = await user?.getIdToken();
+				const response = await axios.get(`${API_URL}/user/getuser`, {
+					headers: {
+						"X-Firebase-Token": token,
+					},
+				});
+
+				if (response.data.success) {
+					setIsAdmin(response.data.data.role === "admin");
+				}
+			} catch (error) {
+				console.error("Error fetching user role:", error);
+				toast.error("Failed to fetch user role");
+			}
+		};
 
 		const fetchCases = async () => {
 			try {
@@ -60,6 +89,7 @@ export const Dashboard = () => {
 			}
 		};
 
+		fetchUserRole();
 		fetchCases();
 	}, [user, hasFetched]);
 
@@ -102,6 +132,16 @@ export const Dashboard = () => {
 		const matchesPriority =
 			selectedPriority === "all" || caseItem.priority === selectedPriority;
 
+		// If not admin, only show user's own cases
+		if (!isAdmin) {
+			return (
+				matchesSearch &&
+				matchesStatus &&
+				matchesPriority &&
+				caseItem.user?._id === user?.uid
+			);
+		}
+
 		return matchesSearch && matchesStatus && matchesPriority;
 	});
 
@@ -125,7 +165,9 @@ export const Dashboard = () => {
 			<div className="flex flex-col gap-4">
 				<div className="flex items-center justify-between">
 					<div>
-						<h1 className="text-2xl font-semibold">My Cases</h1>
+						<h1 className="text-2xl font-semibold">
+							{isAdmin ? "All Cases" : "My Cases"}
+						</h1>
 						<p className="text-sm text-muted-foreground">
 							{loading
 								? "Loading cases..."
@@ -251,9 +293,17 @@ export const Dashboard = () => {
 									</div>
 								)}
 								<div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-									<span>
-										Created: {new Date(caseItem.createdAt).toLocaleDateString()}
-									</span>
+									<div className="space-y-1">
+										<span>
+											Created:{" "}
+											{new Date(caseItem.createdAt).toLocaleDateString()}
+										</span>
+										{isAdmin && (
+											<p className="block text-xs">
+												Submitted by: {caseItem.user?.name || "Unknown"}
+											</p>
+										)}
+									</div>
 									<Button
 										variant="ghost"
 										size="sm"

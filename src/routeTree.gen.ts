@@ -22,6 +22,7 @@ import { Route as LoginImport } from './routes/login'
 import { Route as ForgotPasswordImport } from './routes/forgot-password'
 import { Route as EmailConfirmedImport } from './routes/email-confirmed'
 import { Route as DashboardImport } from './routes/dashboard'
+import { Route as CreateReportImport } from './routes/create-report'
 import { Route as AuthActionImport } from './routes/auth-action'
 import { Route as IndexImport } from './routes/index'
 
@@ -93,6 +94,12 @@ const DashboardRoute = DashboardImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const CreateReportRoute = CreateReportImport.update({
+  id: '/create-report',
+  path: '/create-report',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const AuthActionRoute = AuthActionImport.update({
   id: '/auth-action',
   path: '/auth-action',
@@ -121,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/auth-action'
       fullPath: '/auth-action'
       preLoaderRoute: typeof AuthActionImport
+      parentRoute: typeof rootRoute
+    }
+    '/create-report': {
+      id: '/create-report'
+      path: '/create-report'
+      fullPath: '/create-report'
+      preLoaderRoute: typeof CreateReportImport
       parentRoute: typeof rootRoute
     }
     '/dashboard': {
@@ -208,6 +222,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth-action': typeof AuthActionRoute
+  '/create-report': typeof CreateReportRoute
   '/dashboard': typeof DashboardRoute
   '/email-confirmed': typeof EmailConfirmedRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -224,6 +239,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth-action': typeof AuthActionRoute
+  '/create-report': typeof CreateReportRoute
   '/dashboard': typeof DashboardRoute
   '/email-confirmed': typeof EmailConfirmedRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -241,6 +257,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/auth-action': typeof AuthActionRoute
+  '/create-report': typeof CreateReportRoute
   '/dashboard': typeof DashboardRoute
   '/email-confirmed': typeof EmailConfirmedRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -259,6 +276,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth-action'
+    | '/create-report'
     | '/dashboard'
     | '/email-confirmed'
     | '/forgot-password'
@@ -274,6 +292,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth-action'
+    | '/create-report'
     | '/dashboard'
     | '/email-confirmed'
     | '/forgot-password'
@@ -289,6 +308,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth-action'
+    | '/create-report'
     | '/dashboard'
     | '/email-confirmed'
     | '/forgot-password'
@@ -306,6 +326,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthActionRoute: typeof AuthActionRoute
+  CreateReportRoute: typeof CreateReportRoute
   DashboardRoute: typeof DashboardRoute
   EmailConfirmedRoute: typeof EmailConfirmedRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -322,6 +343,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthActionRoute: AuthActionRoute,
+  CreateReportRoute: CreateReportRoute,
   DashboardRoute: DashboardRoute,
   EmailConfirmedRoute: EmailConfirmedRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
@@ -347,6 +369,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/auth-action",
+        "/create-report",
         "/dashboard",
         "/email-confirmed",
         "/forgot-password",
@@ -365,6 +388,9 @@ export const routeTree = rootRoute
     },
     "/auth-action": {
       "filePath": "auth-action.tsx"
+    },
+    "/create-report": {
+      "filePath": "create-report.tsx"
     },
     "/dashboard": {
       "filePath": "dashboard.tsx"
