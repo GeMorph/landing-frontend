@@ -32,6 +32,15 @@ interface Report {
 		name: string;
 		email: string;
 	};
+	case?: {
+		title: string;
+		user: {
+			name: string;
+		};
+	};
+	submittedBy?: {
+		name: string;
+	};
 }
 
 export const Reports = () => {
@@ -253,6 +262,17 @@ export const Reports = () => {
 													{report.title}
 												</div>
 											)}
+											{report.case && (
+												<div className="text-xs text-muted-foreground mt-1">
+													Related Case:{" "}
+													<span className="font-semibold">
+														{report.case.title}
+													</span>
+													{report.case.user && (
+														<span> (Owner: {report.case.user.name})</span>
+													)}
+												</div>
+											)}
 										</div>
 										<div className="flex flex-wrap gap-2 md:ml-auto mt-2 md:mt-0">
 											<Badge
@@ -276,9 +296,9 @@ export const Reports = () => {
 								<CardContent>
 									<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 										<div className="space-y-2">
-											{isAdmin && (
+											{report.submittedBy && (
 												<p className="text-sm text-muted-foreground">
-													Submitted by: {report.user.name}
+													Submitted by: {report.submittedBy.name}
 												</p>
 											)}
 											<div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -319,6 +339,17 @@ export const Reports = () => {
 											{selectedReport.title}
 										</div>
 									)}
+									{selectedReport?.case && (
+										<div className="text-xs text-muted-foreground mt-1">
+											Related Case:{" "}
+											<span className="font-semibold">
+												{selectedReport.case.title}
+											</span>
+											{selectedReport.case.user && (
+												<span> (Owner: {selectedReport.case.user.name})</span>
+											)}
+										</div>
+									)}
 								</div>
 								<div className="flex gap-2 md:ml-auto mt-2 md:mt-0">
 									<Badge
@@ -348,7 +379,9 @@ export const Reports = () => {
 									<p className="text-base">{selectedReport.description}</p>
 								)}
 								<div className="space-y-2 text-sm text-muted-foreground">
-									{isAdmin && <p>Submitted by: {selectedReport?.user.name}</p>}
+									{selectedReport?.submittedBy && (
+										<p>Submitted by: {selectedReport.submittedBy.name}</p>
+									)}
 									<p>
 										Created:{" "}
 										{selectedReport?.created_at
