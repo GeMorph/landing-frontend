@@ -153,7 +153,7 @@ export default function CreateReport() {
 				`${API_URL}/reports`,
 				{
 					...formData,
-					user: user.uid, // The user creating the report
+					user: formData.assignedTo, // The selected user's MongoDB _id
 					case: formData.caseId || undefined, // Only include case if it's selected
 				},
 				{

@@ -16,7 +16,6 @@ import {
 	DialogTitle,
 	DialogDescription,
 } from "@/components/ui/dialog";
-import { CardTitle } from "@/components/ui/card";
 
 interface Case {
 	id: string;
@@ -45,7 +44,6 @@ export const Dashboard = () => {
 	const { user } = useAuth();
 	const [cases, setCases] = useState<Case[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [hasFetched, setHasFetched] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedStatus, setSelectedStatus] = useState<Case["status"] | "all">(
 		"all"
@@ -53,43 +51,78 @@ export const Dashboard = () => {
 	const [selectedPriority, setSelectedPriority] = useState<
 		Case["priority"] | "all"
 	>("all");
-	const [isAdmin, setIsAdmin] = useState(false);
+	const [isAdmin, setIsAdmin] = useState<null | boolean>(null);
+	const [userMongoId, setUserMongoId] = useState<string | null>(null);
 	const [selectedCase, setSelectedCase] = useState<Case | null>(null);
 
 	useEffect(() => {
-		if (!user || hasFetched) return;
-
+		if (!user) return;
 		const fetchUserRole = async () => {
 			try {
-				const token = await user?.getIdToken();
+				const token = await user.getIdToken();
 				const response = await axios.get(`${API_URL}/user/getuser`, {
-					headers: {
-						"X-Firebase-Token": token,
-					},
+					headers: { "X-Firebase-Token": token },
 				});
-
-				if (response.data.success) {
-					setIsAdmin(response.data.data.role === "admin");
-				}
+				setIsAdmin(response.data.data.role === "admin");
+				setUserMongoId(response.data.data._id);
+				console.log("User role:", response.data.data.role);
 			} catch (error) {
-				console.error("Error fetching user role:", error);
-				toast.error("Failed to fetch user role");
+				setIsAdmin(false);
 			}
 		};
+		fetchUserRole();
+	}, [user]);
 
+	useEffect(() => {
+		if (!user || isAdmin === null) return;
 		const fetchCases = async () => {
 			try {
-				const token = await user?.getIdToken();
-				const response = await axios.get(`${API_URL}/case`, {
-					headers: {
-						"X-Firebase-Token": token,
-					},
-				});
+				setLoading(true);
+				const token = await user.getIdToken();
 
-				console.log("Cases API response:", response.data);
+				if (isAdmin) {
+					console.log("Admin fetching all cases");
+					const response = await axios.get(`${API_URL}/case`, {
+						headers: { "X-Firebase-Token": token },
+					});
+					console.log("Admin /case API response:", response.data);
+					if (response.data.success) {
+						setCases(response.data.data || []);
+					}
+				} else {
+					// For regular users, get their user data which includes cases
+					const userResponse = await axios.get(`${API_URL}/user/getuser`, {
+						headers: { "X-Firebase-Token": token },
+					});
 
-				if (response.data.success) {
-					setCases(response.data.data || []);
+					console.log(
+						"User object from /user/getuser:",
+						userResponse.data.data
+					);
+
+					// The cases are already populated in the user object
+					const userCases = userResponse.data.data.cases || [];
+					console.log("User cases:", userCases);
+
+					// Transform the case data to match the expected format
+					const formattedCases = userCases.map((caseItem: any) => ({
+						id: caseItem._id,
+						caseNumber: caseItem.caseNumber,
+						title: caseItem.title,
+						description: caseItem.description,
+						priority: caseItem.priority,
+						status: caseItem.status,
+						createdAt: caseItem.createdAt,
+						tags: caseItem.tags || [],
+						dnaFile: caseItem.dnaFile,
+						user: {
+							_id: userResponse.data.data._id,
+							name: userResponse.data.data.name,
+							email: userResponse.data.data.email,
+						},
+					}));
+
+					setCases(formattedCases);
 				}
 			} catch (error: any) {
 				console.error("Error fetching cases:", error);
@@ -97,13 +130,10 @@ export const Dashboard = () => {
 				setCases([]);
 			} finally {
 				setLoading(false);
-				setHasFetched(true);
 			}
 		};
-
-		fetchUserRole();
 		fetchCases();
-	}, [user, hasFetched]);
+	}, [user, isAdmin]);
 
 	const getPriorityColor = (priority: Case["priority"]) => {
 		switch (priority) {
@@ -150,7 +180,7 @@ export const Dashboard = () => {
 				matchesSearch &&
 				matchesStatus &&
 				matchesPriority &&
-				caseItem.user?._id === user?.uid
+				caseItem.user?._id === userMongoId
 			);
 		}
 

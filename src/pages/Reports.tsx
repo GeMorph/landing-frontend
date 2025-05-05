@@ -39,7 +39,8 @@ export const Reports = () => {
 	const { user } = useAuth();
 	const [reports, setReports] = useState<Report[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [isAdmin, setIsAdmin] = useState(false);
+	const [isAdmin, setIsAdmin] = useState<null | boolean>(null);
+	const [userMongoId, setUserMongoId] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedStatus, setSelectedStatus] = useState<
 		Report["status"] | "all"
@@ -50,45 +51,49 @@ export const Reports = () => {
 	const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
 	useEffect(() => {
+		if (!user) return;
 		const fetchUserRole = async () => {
-			if (!user) return;
 			try {
 				const token = await user.getIdToken();
 				const response = await axios.get(`${API_URL}/user/getuser`, {
-					headers: {
-						"X-Firebase-Token": token,
-					},
+					headers: { "X-Firebase-Token": token },
 				});
 				setIsAdmin(response.data.data.role === "admin");
+				setUserMongoId(response.data.data._id);
+				console.log("User role:", response.data.data.role);
 			} catch (error) {
-				console.error("Error fetching user role:", error);
-				toast.error("Failed to fetch user role");
+				setIsAdmin(false);
 			}
 		};
-
 		fetchUserRole();
 	}, [user]);
 
 	useEffect(() => {
+		if (!user || isAdmin === null) return;
 		const fetchReports = async () => {
-			if (!user) return;
 			try {
 				setLoading(true);
 				const token = await user.getIdToken();
-				const response = await axios.get(`${API_URL}/reports`, {
-					headers: {
-						"X-Firebase-Token": token,
-					},
-				});
-
-				if (response.data.success) {
-					// If user is admin, show all reports, otherwise filter by user
-					const filteredReports = isAdmin
-						? response.data.reports
-						: response.data.reports.filter(
-								(report: Report) => report.user.email === user.email
-							);
-					setReports(filteredReports || []);
+				if (isAdmin) {
+					console.log("Admin fetching all reports");
+					const response = await axios.get(`${API_URL}/reports`, {
+						headers: { "X-Firebase-Token": token },
+					});
+					if (response.data.success) {
+						setReports(response.data.reports || []);
+					}
+				} else {
+					const userResponse = await axios.get(`${API_URL}/user/getuser`, {
+						headers: { "X-Firebase-Token": token },
+					});
+					console.log(
+						"User object from /user/getuser:",
+						userResponse.data.data
+					);
+					const userReports = Array.isArray(userResponse.data.data.reports)
+						? userResponse.data.data.reports
+						: [];
+					setReports(userReports);
 				}
 			} catch (error: any) {
 				console.error("Error fetching reports:", error);
@@ -98,7 +103,6 @@ export const Reports = () => {
 				setLoading(false);
 			}
 		};
-
 		fetchReports();
 	}, [user, isAdmin]);
 
@@ -134,6 +138,18 @@ export const Reports = () => {
 		const matchesStatus =
 			selectedStatus === "all" || report.status === selectedStatus;
 		const matchesType = selectedType === "all" || report.type === selectedType;
+
+		if (!isAdmin) {
+			return (
+				matchesSearch &&
+				matchesStatus &&
+				matchesType &&
+				report.user &&
+				((typeof report.user === "string" && report.user === userMongoId) ||
+					(typeof report.user === "object" &&
+						(report.user as any)._id === userMongoId))
+			);
+		}
 
 		return matchesSearch && matchesStatus && matchesType;
 	});
