@@ -70,24 +70,19 @@ export async function signUp(
 			password
 		);
 		firebaseUser = userCredential.user;
-		console.log("Firebase user created:", firebaseUser.uid);
 
 		// Update profile with name
 		await updateProfile(firebaseUser, {
 			displayName: `${firstName} ${lastName}`,
 		});
-		console.log("Profile updated with name");
 
 		// Send verification email with action code settings
 		await sendEmailVerification(firebaseUser, actionCodeSettings);
-		console.log("Verification email sent");
 
 		// Get the Firebase ID token
 		const idToken = await firebaseUser.getIdToken();
-		console.log("Got Firebase ID token");
 
 		// Create user in our backend
-		console.log("Attempting to create user in backend...");
 		const response = await axios.post(
 			`${API_URL}/user/signup`,
 			{
