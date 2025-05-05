@@ -9,6 +9,13 @@ import axios from "axios";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FileText, Plus, Search } from "lucide-react";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogDescription,
+} from "@/components/ui/dialog";
 
 interface Case {
 	id: string;
@@ -45,6 +52,7 @@ export const Dashboard = () => {
 		Case["priority"] | "all"
 	>("all");
 	const [isAdmin, setIsAdmin] = useState(false);
+	const [selectedCase, setSelectedCase] = useState<Case | null>(null);
 
 	useEffect(() => {
 		if (!user || hasFetched) return;
@@ -251,20 +259,33 @@ export const Dashboard = () => {
 						</Button>
 					</div>
 				) : (
-					<div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+					<div className="mt-8 grid gap-6">
 						{filteredCases.map((caseItem) => (
 							<div
 								key={caseItem.id}
 								className="group relative overflow-hidden rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md"
 							>
-								<div className="flex items-start justify-between">
-									<h2 className="text-lg font-semibold tracking-tight">
-										{caseItem.title}
-									</h2>
-									<div className="flex gap-2">
+								<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+									<div className="space-y-2">
+										<div className="flex items-center gap-2">
+											<h2 className="text-xl font-semibold tracking-tight">
+												{caseItem.title}
+											</h2>
+											{caseItem.tags && caseItem.tags.length > 0 && (
+												<div className="flex flex-wrap gap-2">
+													{caseItem.tags.map((tag) => (
+														<Badge key={tag} variant="secondary">
+															{tag}
+														</Badge>
+													))}
+												</div>
+											)}
+										</div>
+									</div>
+									<div className="flex flex-wrap gap-2">
 										<span
 											className={cn(
-												"rounded-full px-2.5 py-1 text-xs font-medium",
+												"rounded-full px-3 py-1 text-xs font-medium",
 												getPriorityColor(caseItem.priority)
 											)}
 										>
@@ -272,7 +293,7 @@ export const Dashboard = () => {
 										</span>
 										<span
 											className={cn(
-												"rounded-full px-2.5 py-1 text-xs font-medium",
+												"rounded-full px-3 py-1 text-xs font-medium",
 												getStatusColor(caseItem.status)
 											)}
 										>
@@ -280,26 +301,16 @@ export const Dashboard = () => {
 										</span>
 									</div>
 								</div>
-								<p className="mt-3 line-clamp-3 text-sm text-muted-foreground">
-									{caseItem.description}
-								</p>
-								{caseItem.tags && caseItem.tags.length > 0 && (
-									<div className="mt-3 flex flex-wrap gap-2">
-										{caseItem.tags.map((tag) => (
-											<Badge key={tag} variant="secondary">
-												{tag}
-											</Badge>
-										))}
-									</div>
-								)}
-								<div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-									<div className="space-y-1">
-										<span>
-											Created:{" "}
-											{new Date(caseItem.createdAt).toLocaleDateString()}
-										</span>
+								<div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+									<div className="space-y-2">
+										<div className="flex items-center gap-2 text-sm text-muted-foreground">
+											<span>Created:</span>
+											<span>
+												{new Date(caseItem.createdAt).toLocaleDateString()}
+											</span>
+										</div>
 										{isAdmin && (
-											<p className="block text-xs">
+											<p className="text-sm text-muted-foreground">
 												Submitted by: {caseItem.user?.name || "Unknown"}
 											</p>
 										)}
@@ -307,7 +318,8 @@ export const Dashboard = () => {
 									<Button
 										variant="ghost"
 										size="sm"
-										className="h-8 px-2 text-xs opacity-0 transition-opacity group-hover:opacity-100"
+										className="self-start md:self-center"
+										onClick={() => setSelectedCase(caseItem)}
 									>
 										View Details
 									</Button>
@@ -316,6 +328,76 @@ export const Dashboard = () => {
 						))}
 					</div>
 				)}
+
+				<Dialog
+					open={!!selectedCase}
+					onOpenChange={() => setSelectedCase(null)}
+				>
+					<DialogContent className="max-w-2xl w-full mx-auto p-4 sm:p-6 rounded-2xl shadow-lg">
+						<DialogHeader>
+							<div className="flex items-start justify-between">
+								<div className="flex items-center gap-2 flex-nowrap min-w-0">
+									<DialogTitle asChild>
+										<span className="text-lg font-semibold truncate max-w-[8rem] sm:max-w-xs">
+											{selectedCase?.title}
+										</span>
+									</DialogTitle>
+									{selectedCase?.tags &&
+										selectedCase.tags.length > 0 &&
+										selectedCase.tags.map((tag) => (
+											<Badge
+												key={tag}
+												variant="secondary"
+												className="flex-shrink-0 whitespace-nowrap"
+											>
+												{tag}
+											</Badge>
+										))}
+								</div>
+								<div className="flex gap-2">
+									{selectedCase?.priority && (
+										<span
+											className={cn(
+												"rounded-full px-3 py-1 text-xs font-medium",
+												getPriorityColor(selectedCase.priority)
+											)}
+										>
+											{selectedCase.priority}
+										</span>
+									)}
+									{selectedCase?.status && (
+										<span
+											className={cn(
+												"rounded-full px-3 py-1 text-xs font-medium",
+												getStatusColor(selectedCase.status)
+											)}
+										>
+											{selectedCase.status.replace("_", " ")}
+										</span>
+									)}
+								</div>
+							</div>
+						</DialogHeader>
+						<DialogDescription asChild>
+							<div className="mt-4 space-y-4">
+								{selectedCase?.description && (
+									<p className="text-base mt-2">{selectedCase.description}</p>
+								)}
+								<div className="space-y-2 text-sm text-muted-foreground mt-2">
+									{isAdmin && (
+										<p>Submitted by: {selectedCase?.user?.name || "Unknown"}</p>
+									)}
+									<p>
+										Created:{" "}
+										{selectedCase?.createdAt
+											? new Date(selectedCase.createdAt).toLocaleDateString()
+											: ""}
+									</p>
+								</div>
+							</div>
+						</DialogDescription>
+					</DialogContent>
+				</Dialog>
 			</div>
 		</DashboardLayout>
 	);

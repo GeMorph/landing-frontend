@@ -5,9 +5,18 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Loader2, Plus, Search } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogDescription,
+} from "@/components/ui/dialog";
 
 const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000/api";
 
@@ -30,6 +39,14 @@ export const Reports = () => {
 	const [reports, setReports] = useState<Report[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [isAdmin, setIsAdmin] = useState(false);
+	const [searchQuery, setSearchQuery] = useState("");
+	const [selectedStatus, setSelectedStatus] = useState<
+		Report["status"] | "all"
+	>("all");
+	const [selectedType, setSelectedType] = useState<Report["type"] | "all">(
+		"all"
+	);
+	const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
 	useEffect(() => {
 		const fetchUserRole = async () => {
@@ -108,6 +125,30 @@ export const Reports = () => {
 		}
 	};
 
+	const filteredReports = reports.filter((report) => {
+		const matchesSearch =
+			report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			report.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+		const matchesStatus =
+			selectedStatus === "all" || report.status === selectedStatus;
+		const matchesType = selectedType === "all" || report.type === selectedType;
+
+		return matchesSearch && matchesStatus && matchesType;
+	});
+
+	const statusOptions: Array<Report["status"] | "all"> = [
+		"all",
+		"draft",
+		"published",
+	];
+	const typeOptions: Array<Report["type"] | "all"> = [
+		"all",
+		"analysis",
+		"feedback",
+		"summary",
+	];
+
 	return (
 		<DashboardLayout>
 			<div className="space-y-6">
@@ -128,60 +169,168 @@ export const Reports = () => {
 					)}
 				</div>
 
+				<div className="flex flex-col gap-4 md:flex-row md:items-center">
+					<div className="relative flex-1">
+						<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+						<Input
+							placeholder="Search reports..."
+							className="pl-9"
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
+					</div>
+					<div className="flex flex-wrap gap-2">
+						<select
+							className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+							value={selectedStatus}
+							onChange={(e) =>
+								setSelectedStatus(e.target.value as Report["status"] | "all")
+							}
+						>
+							{statusOptions.map((status) => (
+								<option key={status} value={status}>
+									{status === "all" ? "All Status" : status}
+								</option>
+							))}
+						</select>
+						<select
+							className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+							value={selectedType}
+							onChange={(e) =>
+								setSelectedType(e.target.value as Report["type"] | "all")
+							}
+						>
+							{typeOptions.map((type) => (
+								<option key={type} value={type}>
+									{type === "all" ? "All Types" : type}
+								</option>
+							))}
+						</select>
+					</div>
+				</div>
+
 				{loading ? (
 					<div className="flex items-center justify-center py-12">
 						<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
 					</div>
-				) : reports.length === 0 ? (
+				) : filteredReports.length === 0 ? (
 					<div className="text-center py-12">
 						<p className="text-muted-foreground">
-							{isAdmin
-								? "No reports have been created yet"
-								: "You haven't submitted any reports yet"}
+							{searchQuery || selectedStatus !== "all" || selectedType !== "all"
+								? "No reports match your search criteria"
+								: isAdmin
+									? "No reports have been created yet"
+									: "You haven't submitted any reports yet"}
 						</p>
 					</div>
 				) : (
-					<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-						{reports.map((report) => (
-							<Card key={report.id}>
+					<div className="grid gap-6">
+						{filteredReports.map((report) => (
+							<Card key={report.id} className="hover:shadow-md transition-all">
 								<CardHeader>
-									<div className="flex items-start justify-between">
-										<CardTitle className="line-clamp-1">
-											{report.title}
-										</CardTitle>
-										<div className="flex gap-2">
+									<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+										<CardTitle className="text-xl">{report.title}</CardTitle>
+										<div className="flex flex-wrap gap-2 md:ml-auto">
 											<Badge
 												variant="secondary"
-												className={getStatusColor(report.status)}
+												className={cn("px-3 py-1", getTypeColor(report.type))}
 											>
-												{report.status}
+												{report.type}
 											</Badge>
 											<Badge
 												variant="secondary"
-												className={getTypeColor(report.type)}
+												className={cn(
+													"px-3 py-1",
+													getStatusColor(report.status)
+												)}
 											>
-												{report.type}
+												{report.status}
 											</Badge>
 										</div>
 									</div>
 								</CardHeader>
 								<CardContent>
-									<p className="text-sm text-muted-foreground line-clamp-2">
-										{report.description}
-									</p>
-									{isAdmin && (
-										<p className="mt-4 text-sm text-muted-foreground">
-											Submitted by: {report.user.name}
-										</p>
-									)}
-									<p className="mt-2 text-sm text-muted-foreground">
-										{new Date(report.created_at).toLocaleDateString()}
-									</p>
+									<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+										<div className="space-y-2">
+											{isAdmin && (
+												<p className="text-sm text-muted-foreground">
+													Submitted by: {report.user.name}
+												</p>
+											)}
+											<div className="flex items-center gap-2 text-sm text-muted-foreground">
+												<span>Created:</span>
+												<span>
+													{new Date(report.created_at).toLocaleDateString()}
+												</span>
+											</div>
+										</div>
+										<Button
+											variant="ghost"
+											size="sm"
+											className="self-start md:self-center"
+											onClick={() => setSelectedReport(report)}
+										>
+											View Details
+										</Button>
+									</div>
 								</CardContent>
 							</Card>
 						))}
 					</div>
 				)}
+
+				<Dialog
+					open={!!selectedReport}
+					onOpenChange={() => setSelectedReport(null)}
+				>
+					<DialogContent className="max-w-2xl w-full p-4 sm:p-6 rounded-2xl shadow-lg custom-dialog-center">
+						<DialogHeader>
+							<div className="flex items-start justify-between">
+								<DialogTitle asChild>
+									<span className="text-lg font-semibold">
+										{selectedReport?.title}
+									</span>
+								</DialogTitle>
+								<div className="flex gap-2">
+									<Badge
+										variant="secondary"
+										className={cn(
+											"px-3 py-1",
+											getStatusColor(selectedReport?.status || "")
+										)}
+									>
+										{selectedReport?.status}
+									</Badge>
+									<Badge
+										variant="secondary"
+										className={cn(
+											"px-3 py-1",
+											getTypeColor(selectedReport?.type || "")
+										)}
+									>
+										{selectedReport?.type}
+									</Badge>
+								</div>
+							</div>
+						</DialogHeader>
+						<DialogDescription asChild>
+							<div className="mt-4 space-y-4">
+								{selectedReport?.description && (
+									<p className="text-base">{selectedReport.description}</p>
+								)}
+								<div className="space-y-2 text-sm text-muted-foreground">
+									{isAdmin && <p>Submitted by: {selectedReport?.user.name}</p>}
+									<p>
+										Created:{" "}
+										{selectedReport?.created_at
+											? new Date(selectedReport.created_at).toLocaleDateString()
+											: ""}
+									</p>
+								</div>
+							</div>
+						</DialogDescription>
+					</DialogContent>
+				</Dialog>
 			</div>
 		</DashboardLayout>
 	);
