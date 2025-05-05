@@ -16,9 +16,11 @@ import {
 	DialogTitle,
 	DialogDescription,
 } from "@/components/ui/dialog";
+import { CardTitle } from "@/components/ui/card";
 
 interface Case {
 	id: string;
+	caseNumber: number;
 	title: string;
 	description: string;
 	priority: "low" | "medium" | "high" | "urgent";
@@ -83,6 +85,8 @@ export const Dashboard = () => {
 						"X-Firebase-Token": token,
 					},
 				});
+
+				console.log("Cases API response:", response.data);
 
 				if (response.data.success) {
 					setCases(response.data.data || []);
@@ -266,23 +270,22 @@ export const Dashboard = () => {
 								className="group relative overflow-hidden rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md"
 							>
 								<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-									<div className="space-y-2">
-										<div className="flex items-center gap-2">
-											<h2 className="text-xl font-semibold tracking-tight">
+									<div>
+										<h2 className="text-xl font-semibold tracking-tight">{`Case #${caseItem.caseNumber}`}</h2>
+										{caseItem.title && (
+											<div className="text-sm text-muted-foreground font-medium mt-2">
 												{caseItem.title}
-											</h2>
-											{caseItem.tags && caseItem.tags.length > 0 && (
-												<div className="flex flex-wrap gap-2">
-													{caseItem.tags.map((tag) => (
-														<Badge key={tag} variant="secondary">
-															{tag}
-														</Badge>
-													))}
-												</div>
-											)}
-										</div>
+											</div>
+										)}
 									</div>
-									<div className="flex flex-wrap gap-2">
+									<div className="flex flex-wrap gap-2 md:ml-auto">
+										{caseItem.tags &&
+											caseItem.tags.length > 0 &&
+											caseItem.tags.map((tag) => (
+												<Badge key={tag} variant="secondary">
+													{tag}
+												</Badge>
+											))}
 										<span
 											className={cn(
 												"rounded-full px-3 py-1 text-xs font-medium",
@@ -335,26 +338,25 @@ export const Dashboard = () => {
 				>
 					<DialogContent className="max-w-2xl w-full mx-auto p-4 sm:p-6 rounded-2xl shadow-lg">
 						<DialogHeader>
-							<div className="flex items-start justify-between">
-								<div className="flex items-center gap-2 flex-nowrap min-w-0">
+							<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+								<div>
 									<DialogTitle asChild>
-										<span className="text-lg font-semibold truncate max-w-[8rem] sm:max-w-xs">
-											{selectedCase?.title}
-										</span>
+										<span className="text-lg font-semibold">{`Case #${selectedCase?.caseNumber}`}</span>
 									</DialogTitle>
+									{selectedCase?.title && (
+										<div className="text-base text-muted-foreground font-medium mt-2">
+											{selectedCase.title}
+										</div>
+									)}
+								</div>
+								<div className="flex flex-wrap gap-2 md:ml-auto mt-2 md:mt-0">
 									{selectedCase?.tags &&
 										selectedCase.tags.length > 0 &&
 										selectedCase.tags.map((tag) => (
-											<Badge
-												key={tag}
-												variant="secondary"
-												className="flex-shrink-0 whitespace-nowrap"
-											>
+											<Badge key={tag} variant="secondary">
 												{tag}
 											</Badge>
 										))}
-								</div>
-								<div className="flex gap-2">
 									{selectedCase?.priority && (
 										<span
 											className={cn(

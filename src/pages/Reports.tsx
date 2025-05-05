@@ -22,6 +22,7 @@ const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000/api";
 
 interface Report {
 	id: string;
+	caseNumber: number;
 	title: string;
 	description: string;
 	type: string;
@@ -229,8 +230,15 @@ export const Reports = () => {
 							<Card key={report.id} className="hover:shadow-md transition-all">
 								<CardHeader>
 									<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-										<CardTitle className="text-xl">{report.title}</CardTitle>
-										<div className="flex flex-wrap gap-2 md:ml-auto">
+										<div>
+											<CardTitle className="text-xl">{`Report #${report.caseNumber}`}</CardTitle>
+											{report.title && (
+												<div className="text-sm text-muted-foreground font-medium mt-2">
+													{report.title}
+												</div>
+											)}
+										</div>
+										<div className="flex flex-wrap gap-2 md:ml-auto mt-2 md:mt-0">
 											<Badge
 												variant="secondary"
 												className={cn("px-3 py-1", getTypeColor(report.type))}
@@ -285,13 +293,18 @@ export const Reports = () => {
 				>
 					<DialogContent className="max-w-2xl w-full p-4 sm:p-6 rounded-2xl shadow-lg custom-dialog-center">
 						<DialogHeader>
-							<div className="flex items-start justify-between">
-								<DialogTitle asChild>
-									<span className="text-lg font-semibold">
-										{selectedReport?.title}
-									</span>
-								</DialogTitle>
-								<div className="flex gap-2">
+							<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+								<div>
+									<DialogTitle asChild>
+										<span className="text-lg font-semibold">{`Report #${selectedReport?.caseNumber}`}</span>
+									</DialogTitle>
+									{selectedReport?.title && (
+										<div className="text-base text-muted-foreground font-medium mt-2">
+											{selectedReport.title}
+										</div>
+									)}
+								</div>
+								<div className="flex gap-2 md:ml-auto mt-2 md:mt-0">
 									<Badge
 										variant="secondary"
 										className={cn(
