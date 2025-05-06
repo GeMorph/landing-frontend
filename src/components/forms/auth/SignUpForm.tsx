@@ -1,8 +1,9 @@
 // src/components/forms/auth/SignUpForm.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { signUp } from "@/lib/auth";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,7 @@ import { PasswordStrengthIndicator } from "@/components/forms/auth/PasswordStren
 
 export const SignUpForm = () => {
 	const navigate = useNavigate();
+	const { user } = useAuth();
 	const [formData, setFormData] = useState({
 		firstName: "",
 		lastName: "",
@@ -24,6 +26,12 @@ export const SignUpForm = () => {
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [agreeToTerms, setAgreeToTerms] = useState(false);
 	const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
+	useEffect(() => {
+		if (user) {
+			navigate({ to: "/dashboard" });
+		}
+	}, [user, navigate]);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;

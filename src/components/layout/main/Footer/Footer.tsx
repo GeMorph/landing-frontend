@@ -9,27 +9,24 @@ export const Footer = () => {
 				{/* Left column */}
 				<div>
 					<Link to="/" className="inline-block">
-					<div className="flex items-center space-x-2 text-5xl font-bold mb-4">
-						<img
-							src="/logo-bright.png"
-							alt="logo"
-							className="h-6 md:h-8 lg:h-10 dark:hidden"
-						/>
-						<img
-							src="/logo-dark.png"
-							alt="logo-dark"
-							className="h-6 md:h-8 lg:h-10 hidden dark:block"
-						/>
+						<div className="flex items-center space-x-2 text-5xl font-bold mb-4">
+							<img
+								src="/logo-bright.png"
+								alt="logo"
+								className="h-6 md:h-8 lg:h-10 dark:hidden"
+							/>
+							<img
+								src="/logo-dark.png"
+								alt="logo-dark"
+								className="h-6 md:h-8 lg:h-10 hidden dark:block"
+							/>
 							<div className="text-lg md:text-2xl lg:text-4xl text-foreground">
 								GeMorph
 							</div>
-					</div>
+						</div>
 					</Link>
 					<p className="text-sm md:text-md lg:text-lg text-muted-foreground mb-6 leading-snug">
-						Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint non
-						laboriosam amet accusantium fuga illo quibusdam neque vitae deleniti
-						maiores beatae molestiae deserunt sunt aliquam mollitia nulla, at
-						dolor quae?
+						Powered by AI. Informed by Genetics. Focused on the Future.
 					</p>
 					<h3 className="text-sm md:text-md lg:text-lg font-semibold mb-2">
 						Follow Us

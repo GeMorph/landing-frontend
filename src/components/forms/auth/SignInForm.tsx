@@ -1,8 +1,9 @@
 // src/components/forms/auth/SignInForm.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,7 @@ import { Eye, EyeOff } from "lucide-react";
 
 export const SignInForm = () => {
 	const navigate = useNavigate();
+	const { user } = useAuth();
 	const [formData, setFormData] = useState({
 		email: "",
 		password: "",
@@ -17,6 +19,12 @@ export const SignInForm = () => {
 	const [loading, setLoading] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 	const [rememberMe, setRememberMe] = useState(false);
+
+	useEffect(() => {
+		if (user) {
+			navigate({ to: "/dashboard" });
+		}
+	}, [user, navigate]);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;

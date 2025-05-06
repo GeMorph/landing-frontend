@@ -554,9 +554,12 @@ export const Dashboard = () => {
 												Submitted by: {selectedCase?.user?.name || "Unknown"}
 											</p>
 										)}
-										{selectedCase?.assignedTo && (
-											<p>Assigned to: {selectedCase.assignedTo.name}</p>
-										)}
+										<p>
+											Assigned to:{" "}
+											{selectedCase?.assignedTo
+												? `${selectedCase.assignedTo.name} (${selectedCase.assignedTo.email})`
+												: "Unassigned"}
+										</p>
 										<p>
 											Created:{" "}
 											{selectedCase?.createdAt

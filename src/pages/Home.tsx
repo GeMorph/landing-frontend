@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { submitContactForm } from "@/lib/contact";
 import { toast } from "sonner";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, Link } from "@tanstack/react-router";
 
 export default function Home() {
 	const [isLoading, setIsLoading] = useState(true);
@@ -218,15 +218,17 @@ export default function Home() {
 						{/* Button Animation */}
 						<AnimatePresence>
 							{showButton && (
-								<motion.button
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									exit={{ opacity: 0 }}
-									transition={{ delay: 0.5, duration: 0.8 }}
-									className="mt-6 px-6 py-3 bg-white text-black dark:bg-blue-900 dark:text-white rounded-md text-lg font-semibold hover:bg-gray-200 dark:hover:bg-blue-700 transition"
-								>
-									Get Started
-								</motion.button>
+								<Link to="/signup">
+									<motion.div
+										initial={{ opacity: 0, y: 20 }}
+										animate={{ opacity: 1, y: 0 }}
+										exit={{ opacity: 0 }}
+										transition={{ delay: 0.5, duration: 0.8 }}
+										className="mt-6 px-6 py-3 bg-white text-black dark:bg-blue-900 dark:text-white rounded-md text-lg font-semibold hover:bg-gray-200 dark:hover:bg-blue-700 transition"
+									>
+										Get Started
+									</motion.div>
+								</Link>
 							)}
 						</AnimatePresence>
 					</div>
@@ -255,20 +257,23 @@ export default function Home() {
 								transition={{ duration: 0.8, ease: "easeOut" }}
 							>
 								<p className="text-gray-600 dark:text-gray-300 mb-4">
-									Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-									Aenean commodo ligula eget dolor. Aenean massa. Cum sociis
-									natoque penatibus et magnis dis parturient montes, nascetur
-									ridiculus mus.
+									GeMorph is unique because it is one of the few (if not the
+									only) systems in the world that can predict a person’s colored
+									3D "face sketch" from their DNA. By bridging genomics and 3D
+									facial reconstruction using advanced AI techniques, GeMorph
+									helps investigators solve crimes more effectively — improving
+									on conventional methods that rely on eyewitnesses and
+									standard forensics.
 								</p>
 								<p className="text-gray-600 dark:text-gray-300">
-									Donec quam felis, ultricies nec, pellentesque eu, pretium
-									quis, sem. Nulla consequat massa quis enim.
+									GeMorph makes investigations faster and better, delivering
+									results with 62.5% lower costs.
 								</p>
 							</motion.div>
 
 							<motion.div
 								initial={{ opacity: 0, x: 50 }}
-								whileInView={{ opacity: 1, x: 0 }}
+								whileInView={{ opacity: 1, x: 0 }}	
 								viewport={{ once: true }}
 								transition={{ duration: 0.8, ease: "easeOut" }}
 								className="relative flex justify-center"

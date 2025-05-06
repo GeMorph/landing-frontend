@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import { Loader2, Upload } from "lucide-react";
 const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000/api";
 
 export const SubmitCase = () => {
+	const navigate = useNavigate();
 	const { user } = useAuth();
 	const [loading, setLoading] = useState(false);
 	const [uploadingFile, setUploadingFile] = useState(false);
@@ -106,6 +108,7 @@ export const SubmitCase = () => {
 					tags: "",
 					dnaFile: null,
 				});
+				navigate({ to: "/dashboard" });
 			}
 		} catch (error: any) {
 			console.error("Error submitting case:", error);
