@@ -54,6 +54,11 @@ export const Dashboard = () => {
 	const [isAdmin, setIsAdmin] = useState<null | boolean>(null);
 	const [userMongoId, setUserMongoId] = useState<string | null>(null);
 	const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+	const [isEditing, setIsEditing] = useState(false);
+	const [editedCase, setEditedCase] = useState<Case | null>(null);
+	const [users, setUsers] = useState<
+		Array<{ _id: string; name: string; email: string }>
+	>([]);
 
 	useEffect(() => {
 		if (!user) return;
@@ -135,6 +140,25 @@ export const Dashboard = () => {
 		fetchCases();
 	}, [user, isAdmin]);
 
+	useEffect(() => {
+		if (!user || !isAdmin) return;
+		const fetchUsers = async () => {
+			try {
+				const token = await user.getIdToken();
+				const response = await axios.get(`${API_URL}/user/allusers`, {
+					headers: { "X-Firebase-Token": token },
+				});
+				if (response.data.success) {
+					setUsers(response.data.data);
+				}
+			} catch (error) {
+				console.error("Error fetching users:", error);
+				toast.error("Failed to fetch users for assignment");
+			}
+		};
+		fetchUsers();
+	}, [user, isAdmin]);
+
 	const getPriorityColor = (priority: Case["priority"]) => {
 		switch (priority) {
 			case "low":
@@ -201,6 +225,42 @@ export const Dashboard = () => {
 		"high",
 		"urgent",
 	];
+
+	const handleEdit = (caseItem: Case) => {
+		setEditedCase(caseItem);
+		setIsEditing(true);
+	};
+
+	const handleSaveCase = async () => {
+		if (!selectedCase || !editedCase) return;
+
+		try {
+			const token = await user?.getIdToken();
+			const response = await axios.put(
+				`${API_URL}/case/${selectedCase.id}`,
+				{
+					status: editedCase.status,
+					priority: editedCase.priority,
+					assignedTo: editedCase.assignedTo?._id,
+				},
+				{
+					headers: { "X-Firebase-Token": token },
+				}
+			);
+
+			if (response.data.success) {
+				setCases(
+					cases.map((c) =>
+						c.id === selectedCase.id ? { ...c, ...editedCase } : c
+					)
+				);
+				setIsEditing(false);
+				toast.success("Case updated successfully");
+			}
+		} catch (error: any) {
+			toast.error(error.response?.data?.message || "Failed to update case");
+		}
+	};
 
 	return (
 		<DashboardLayout>
@@ -379,35 +439,15 @@ export const Dashboard = () => {
 										</div>
 									)}
 								</div>
-								<div className="flex flex-wrap gap-2 md:ml-auto mt-2 md:mt-0">
-									{selectedCase?.tags &&
-										selectedCase.tags.length > 0 &&
-										selectedCase.tags.map((tag) => (
-											<Badge key={tag} variant="secondary">
-												{tag}
-											</Badge>
-										))}
-									{selectedCase?.priority && (
-										<span
-											className={cn(
-												"rounded-full px-3 py-1 text-xs font-medium",
-												getPriorityColor(selectedCase.priority)
-											)}
-										>
-											{selectedCase.priority}
-										</span>
-									)}
-									{selectedCase?.status && (
-										<span
-											className={cn(
-												"rounded-full px-3 py-1 text-xs font-medium",
-												getStatusColor(selectedCase.status)
-											)}
-										>
-											{selectedCase.status.replace("_", " ")}
-										</span>
-									)}
-								</div>
+								{isAdmin && (
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => handleEdit(selectedCase!)}
+									>
+										{isEditing ? "Cancel" : "Edit"}
+									</Button>
+								)}
 							</div>
 						</DialogHeader>
 						<DialogDescription asChild>
@@ -415,17 +455,116 @@ export const Dashboard = () => {
 								{selectedCase?.description && (
 									<p className="text-base mt-2">{selectedCase.description}</p>
 								)}
-								<div className="space-y-2 text-sm text-muted-foreground mt-2">
-									{isAdmin && (
-										<p>Submitted by: {selectedCase?.user?.name || "Unknown"}</p>
-									)}
-									<p>
-										Created:{" "}
-										{selectedCase?.createdAt
-											? new Date(selectedCase.createdAt).toLocaleDateString()
-											: ""}
-									</p>
-								</div>
+								{isEditing ? (
+									<div className="space-y-4">
+										<div className="grid grid-cols-2 gap-4">
+											<div>
+												<label className="text-sm font-medium">Status</label>
+												<select
+													className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+													value={editedCase?.status}
+													onChange={(e) =>
+														setEditedCase((prev) =>
+															prev
+																? {
+																		...prev,
+																		status: e.target.value as Case["status"],
+																	}
+																: null
+														)
+													}
+												>
+													{statusOptions
+														.filter((s) => s !== "all")
+														.map((status) => (
+															<option key={status} value={status}>
+																{status.replace("_", " ")}
+															</option>
+														))}
+												</select>
+											</div>
+											<div>
+												<label className="text-sm font-medium">Priority</label>
+												<select
+													className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+													value={editedCase?.priority}
+													onChange={(e) =>
+														setEditedCase((prev) =>
+															prev
+																? {
+																		...prev,
+																		priority: e.target
+																			.value as Case["priority"],
+																	}
+																: null
+														)
+													}
+												>
+													{priorityOptions
+														.filter((p) => p !== "all")
+														.map((priority) => (
+															<option key={priority} value={priority}>
+																{priority}
+															</option>
+														))}
+												</select>
+											</div>
+										</div>
+										<div>
+											<label className="text-sm font-medium">Assign To</label>
+											<select
+												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+												value={editedCase?.assignedTo?._id || ""}
+												onChange={(e) => {
+													const selectedUser = users.find(
+														(u) => u._id === e.target.value
+													);
+													setEditedCase((prev) =>
+														prev
+															? {
+																	...prev,
+																	assignedTo: selectedUser || null,
+																}
+															: null
+													);
+												}}
+											>
+												<option value="">Unassigned</option>
+												{users.map((user) => (
+													<option key={user._id} value={user._id}>
+														{user.name} ({user.email})
+													</option>
+												))}
+											</select>
+										</div>
+										<div className="flex justify-end gap-2">
+											<Button
+												variant="outline"
+												onClick={() => setIsEditing(false)}
+											>
+												Cancel
+											</Button>
+											<Button onClick={handleSaveCase}>Save Changes</Button>
+										</div>
+									</div>
+								) : (
+									<div className="space-y-2 text-sm text-muted-foreground mt-2">
+										{isAdmin && (
+											<p>
+												Submitted by: {selectedCase?.user?.name || "Unknown"}
+											</p>
+										)}
+										{selectedCase?.assignedTo && (
+											<p>Assigned to: {selectedCase.assignedTo.name}</p>
+										)}
+										<p>
+											Created:{" "}
+											{selectedCase?.createdAt
+												? new Date(selectedCase.createdAt).toLocaleDateString()
+												: ""}
+										</p>
+									</div>
+								)}
 							</div>
 						</DialogDescription>
 					</DialogContent>

@@ -33,6 +33,7 @@ interface Report {
 		email: string;
 	};
 	case?: {
+		_id: string;
 		title: string;
 		user: {
 			name: string;
@@ -58,6 +59,8 @@ export const Reports = () => {
 		"all"
 	);
 	const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+	const [isEditing, setIsEditing] = useState(false);
+	const [editedReport, setEditedReport] = useState<Report | null>(null);
 
 	useEffect(() => {
 		if (!user) return;
@@ -174,6 +177,44 @@ export const Reports = () => {
 		"feedback",
 		"summary",
 	];
+
+	const handleEdit = (report: Report) => {
+		setEditedReport(report);
+		setIsEditing(true);
+	};
+
+	const handleSaveReport = async () => {
+		if (!selectedReport || !editedReport) return;
+
+		try {
+			const token = await user?.getIdToken();
+			const response = await axios.put(
+				`${API_URL}/reports/${selectedReport.id}`,
+				{
+					title: editedReport.title,
+					description: editedReport.description,
+					status: editedReport.status,
+					type: editedReport.type,
+					case: editedReport.case?._id,
+				},
+				{
+					headers: { "X-Firebase-Token": token },
+				}
+			);
+
+			if (response.data.success) {
+				setReports(
+					reports.map((r) =>
+						r.id === selectedReport.id ? { ...r, ...editedReport } : r
+					)
+				);
+				setIsEditing(false);
+				toast.success("Report updated successfully");
+			}
+		} catch (error: any) {
+			toast.error(error.response?.data?.message || "Failed to update report");
+		}
+	};
 
 	return (
 		<DashboardLayout>
@@ -339,56 +380,131 @@ export const Reports = () => {
 											{selectedReport.title}
 										</div>
 									)}
-									{selectedReport?.case && (
-										<div className="text-xs text-muted-foreground mt-1">
-											Related Case:{" "}
-											<span className="font-semibold">
-												{selectedReport.case.title}
-											</span>
-											{selectedReport.case.user && (
-												<span> (Owner: {selectedReport.case.user.name})</span>
-											)}
-										</div>
-									)}
 								</div>
-								<div className="flex gap-2 md:ml-auto mt-2 md:mt-0">
-									<Badge
-										variant="secondary"
-										className={cn(
-											"px-3 py-1",
-											getStatusColor(selectedReport?.status || "")
-										)}
+								{isAdmin && (
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => handleEdit(selectedReport!)}
 									>
-										{selectedReport?.status}
-									</Badge>
-									<Badge
-										variant="secondary"
-										className={cn(
-											"px-3 py-1",
-											getTypeColor(selectedReport?.type || "")
-										)}
-									>
-										{selectedReport?.type}
-									</Badge>
-								</div>
+										{isEditing ? "Cancel" : "Edit"}
+									</Button>
+								)}
 							</div>
 						</DialogHeader>
 						<DialogDescription asChild>
 							<div className="mt-4 space-y-4">
-								{selectedReport?.description && (
-									<p className="text-base">{selectedReport.description}</p>
+								{isEditing ? (
+									<div className="space-y-4">
+										<div>
+											<label className="text-sm font-medium">Title</label>
+											<Input
+												value={editedReport?.title}
+												onChange={(e) =>
+													setEditedReport((prev) =>
+														prev ? { ...prev, title: e.target.value } : null
+													)
+												}
+												className="mt-1"
+											/>
+										</div>
+										<div>
+											<label className="text-sm font-medium">Description</label>
+											<textarea
+												value={editedReport?.description}
+												onChange={(e) =>
+													setEditedReport((prev) =>
+														prev
+															? { ...prev, description: e.target.value }
+															: null
+													)
+												}
+												className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1"
+												rows={4}
+											/>
+										</div>
+										<div className="grid grid-cols-2 gap-4">
+											<div>
+												<label className="text-sm font-medium">Status</label>
+												<select
+													className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1"
+													value={editedReport?.status}
+													onChange={(e) =>
+														setEditedReport((prev) =>
+															prev
+																? {
+																		...prev,
+																		status: e.target.value as Report["status"],
+																	}
+																: null
+														)
+													}
+												>
+													{statusOptions
+														.filter((s) => s !== "all")
+														.map((status) => (
+															<option key={status} value={status}>
+																{status}
+															</option>
+														))}
+												</select>
+											</div>
+											<div>
+												<label className="text-sm font-medium">Type</label>
+												<select
+													className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1"
+													value={editedReport?.type}
+													onChange={(e) =>
+														setEditedReport((prev) =>
+															prev
+																? {
+																		...prev,
+																		type: e.target.value as Report["type"],
+																	}
+																: null
+														)
+													}
+												>
+													{typeOptions
+														.filter((t) => t !== "all")
+														.map((type) => (
+															<option key={type} value={type}>
+																{type}
+															</option>
+														))}
+												</select>
+											</div>
+										</div>
+										<div className="flex justify-end gap-2">
+											<Button
+												variant="outline"
+												onClick={() => setIsEditing(false)}
+											>
+												Cancel
+											</Button>
+											<Button onClick={handleSaveReport}>Save Changes</Button>
+										</div>
+									</div>
+								) : (
+									<>
+										{selectedReport?.description && (
+											<p className="text-base">{selectedReport.description}</p>
+										)}
+										<div className="space-y-2 text-sm text-muted-foreground">
+											{selectedReport?.submittedBy && (
+												<p>Submitted by: {selectedReport.submittedBy.name}</p>
+											)}
+											<p>
+												Created:{" "}
+												{selectedReport?.created_at
+													? new Date(
+															selectedReport.created_at
+														).toLocaleDateString()
+													: ""}
+											</p>
+										</div>
+									</>
 								)}
-								<div className="space-y-2 text-sm text-muted-foreground">
-									{selectedReport?.submittedBy && (
-										<p>Submitted by: {selectedReport.submittedBy.name}</p>
-									)}
-									<p>
-										Created:{" "}
-										{selectedReport?.created_at
-											? new Date(selectedReport.created_at).toLocaleDateString()
-											: ""}
-									</p>
-								</div>
 							</div>
 						</DialogDescription>
 					</DialogContent>
