@@ -39,6 +39,7 @@ export const SubmitCase = () => {
 			// Check file type
 			if (!file.name.endsWith(".fasta") && !file.name.endsWith(".fa")) {
 				toast.error("Please upload a valid FASTA file (.fasta or .fa)");
+				e.target.value = ""; // Reset the input
 				return;
 			}
 			setFormData((prev) => ({ ...prev, dnaFile: file }));
@@ -52,10 +53,24 @@ export const SubmitCase = () => {
 				storage,
 				`dna-files/${user?.uid}/${Date.now()}-${file.name}`
 			);
-			await uploadBytes(fileRef, file);
+
+			// Set metadata to handle CORS
+			const metadata = {
+				contentType: file.type,
+				customMetadata: {
+					"Access-Control-Allow-Origin": "*",
+				},
+			};
+
+			await uploadBytes(fileRef, file, metadata);
 			return await getDownloadURL(fileRef);
-		} catch (error) {
+		} catch (error: any) {
 			console.error("Error uploading file:", error);
+			if (error.code === "storage/cors-error") {
+				toast.error("CORS error: Please contact support");
+			} else {
+				toast.error("Failed to upload file. Please try again.");
+			}
 			throw error;
 		}
 	};
@@ -69,9 +84,16 @@ export const SubmitCase = () => {
 			let dnaFileUrl = null;
 
 			if (formData.dnaFile) {
-				setUploadingFile(true);
-				dnaFileUrl = await uploadFile(formData.dnaFile);
-				setUploadingFile(false);
+				try {
+					setUploadingFile(true);
+					dnaFileUrl = await uploadFile(formData.dnaFile);
+				} catch (error) {
+					setUploadingFile(false);
+					setLoading(false);
+					return; // Stop form submission if file upload fails
+				} finally {
+					setUploadingFile(false);
+				}
 			}
 
 			const token = await user.getIdToken();

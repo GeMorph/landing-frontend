@@ -157,6 +157,7 @@ export default function CreateReport() {
 				toast.error(
 					"Please upload a valid document file (PDF, DOC, DOCX, or TXT)"
 				);
+				e.target.value = ""; // Reset the input
 				return;
 			}
 			setFormData((prev) => ({ ...prev, reportFile: file }));
@@ -170,10 +171,24 @@ export default function CreateReport() {
 				storage,
 				`report-files/${user?.uid}/${Date.now()}-${file.name}`
 			);
-			await uploadBytes(fileRef, file);
+
+			// Set metadata to handle CORS
+			const metadata = {
+				contentType: file.type,
+				customMetadata: {
+					"Access-Control-Allow-Origin": "*",
+				},
+			};
+
+			await uploadBytes(fileRef, file, metadata);
 			return await getDownloadURL(fileRef);
-		} catch (error) {
+		} catch (error: any) {
 			console.error("Error uploading file:", error);
+			if (error.code === "storage/cors-error") {
+				toast.error("CORS error: Please contact support");
+			} else {
+				toast.error("Failed to upload file. Please try again.");
+			}
 			throw error;
 		}
 	};
@@ -187,9 +202,16 @@ export default function CreateReport() {
 			let fileUrl = null;
 
 			if (formData.reportFile) {
-				setUploadingFile(true);
-				fileUrl = await uploadFile(formData.reportFile);
-				setUploadingFile(false);
+				try {
+					setUploadingFile(true);
+					fileUrl = await uploadFile(formData.reportFile);
+				} catch (error) {
+					setUploadingFile(false);
+					setLoading(false);
+					return; // Stop form submission if file upload fails
+				} finally {
+					setUploadingFile(false);
+				}
 			}
 
 			const token = await user.getIdToken();
