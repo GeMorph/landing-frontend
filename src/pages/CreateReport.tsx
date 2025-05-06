@@ -14,8 +14,9 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import axios from "axios";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 
 const API_URL = import.meta.env["VITE_API_URL"] || "http://localhost:4000/api";
 
@@ -47,6 +48,7 @@ export default function CreateReport() {
 	const navigate = useNavigate();
 	const { user } = useAuth();
 	const [loading, setLoading] = useState(false);
+	const [uploadingFile, setUploadingFile] = useState(false);
 	const [users, setUsers] = useState<User[]>([]);
 	const [allCases, setAllCases] = useState<Case[]>([]);
 	const [filteredCases, setFilteredCases] = useState<Case[]>([]);
@@ -57,6 +59,7 @@ export default function CreateReport() {
 		status: "draft",
 		assignedTo: "",
 		caseId: "",
+		reportFile: null as File | null,
 	});
 
 	useEffect(() => {
@@ -101,7 +104,6 @@ export default function CreateReport() {
 		fetchUsersAndCases();
 	}, [user]);
 
-	// Fetch cases when a user is selected
 	useEffect(() => {
 		const fetchUserCases = async () => {
 			if (!user || !formData.assignedTo) {
@@ -124,7 +126,6 @@ export default function CreateReport() {
 					const userCases = response.data.data || [];
 					console.log("User cases:", userCases);
 					setFilteredCases(userCases);
-					// Reset caseId if the selected case is not in the filtered list
 					if (
 						formData.caseId &&
 						!userCases.find((c: Case) => c.id === formData.caseId)
@@ -142,19 +143,72 @@ export default function CreateReport() {
 		fetchUserCases();
 	}, [formData.assignedTo, user]);
 
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			const allowedTypes = [
+				"application/pdf",
+				"application/msword",
+				"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+				"text/plain",
+			];
+
+			if (!allowedTypes.includes(file.type)) {
+				toast.error(
+					"Please upload a valid document file (PDF, DOC, DOCX, or TXT)"
+				);
+				return;
+			}
+			setFormData((prev) => ({ ...prev, reportFile: file }));
+		}
+	};
+
+	const uploadFile = async (file: File) => {
+		try {
+			const storage = getStorage();
+			const fileRef = ref(
+				storage,
+				`report-files/${user?.uid}/${Date.now()}-${file.name}`
+			);
+			await uploadBytes(fileRef, file);
+			return await getDownloadURL(fileRef);
+		} catch (error) {
+			console.error("Error uploading file:", error);
+			throw error;
+		}
+	};
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!user) return;
 
 		try {
 			setLoading(true);
+			let fileUrl = null;
+
+			if (formData.reportFile) {
+				setUploadingFile(true);
+				fileUrl = await uploadFile(formData.reportFile);
+				setUploadingFile(false);
+			}
+
 			const token = await user.getIdToken();
 			const response = await axios.post(
 				`${API_URL}/reports`,
 				{
 					...formData,
-					user: formData.assignedTo, // The selected user's MongoDB _id
-					case: formData.caseId || undefined, // Only include case if it's selected
+					user: formData.assignedTo,
+					case: formData.caseId || undefined,
+					attachments: fileUrl
+						? [
+								{
+									url: fileUrl,
+									name: formData.reportFile?.name,
+									size: formData.reportFile?.size,
+									type: formData.reportFile?.type,
+								},
+							]
+						: [],
 				},
 				{
 					headers: {
@@ -309,14 +363,44 @@ export default function CreateReport() {
 						)}
 					</div>
 
-					<Button type="submit" className="w-full" disabled={loading}>
-						{loading ? (
+					<div className="space-y-2 mb-6">
+						<Label htmlFor="reportFile">
+							Report File (PDF, DOC, DOCX, or TXT)
+						</Label>
+						<div className="flex items-center gap-2">
+							<Input
+								id="reportFile"
+								type="file"
+								accept=".pdf,.doc,.docx,.txt"
+								onChange={handleFileChange}
+								className="cursor-pointer"
+							/>
+							{formData.reportFile && (
+								<span className="text-sm text-muted-foreground">
+									{formData.reportFile.name}
+								</span>
+							)}
+						</div>
+						<p className="text-xs text-muted-foreground">
+							Upload a document containing the report details
+						</p>
+					</div>
+
+					<Button
+						type="submit"
+						className="w-full"
+						disabled={loading || uploadingFile}
+					>
+						{loading || uploadingFile ? (
 							<>
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-								Creating Report...
+								{uploadingFile ? "Uploading file..." : "Creating Report..."}
 							</>
 						) : (
-							"Create Report"
+							<>
+								<Upload className="mr-2 h-4 w-4" />
+								Create Report
+							</>
 						)}
 					</Button>
 				</form>
