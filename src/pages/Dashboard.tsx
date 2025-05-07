@@ -26,6 +26,8 @@ interface Case {
 	status: "open" | "in_progress" | "resolved" | "closed";
 	createdAt: string;
 	tags: string[];
+	dnaFile: string | null;
+	attachments: string[];
 	user: {
 		_id: string;
 		name: string;
@@ -120,6 +122,7 @@ export const Dashboard = () => {
 						createdAt: caseItem.createdAt,
 						tags: caseItem.tags || [],
 						dnaFile: caseItem.dnaFile,
+						attachments: caseItem.attachments || [],
 						user: {
 							_id: userResponse.data.data._id,
 							name: userResponse.data.data.name,
@@ -566,6 +569,43 @@ export const Dashboard = () => {
 												? new Date(selectedCase.createdAt).toLocaleDateString()
 												: ""}
 										</p>
+										{selectedCase?.dnaFile && (
+											<div className="mt-4">
+												<a
+													href={selectedCase.dnaFile}
+													download
+													target="_blank"
+													rel="noopener noreferrer"
+													className="inline-flex w-full items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+												>
+													<FileText className="mr-2 h-4 w-4" />
+													Download DNA File
+												</a>
+											</div>
+										)}
+										{selectedCase?.attachments &&
+											selectedCase.attachments.length > 0 && (
+												<div className="mt-4">
+													<p className="font-medium mb-2">Attachments:</p>
+													<div className="space-y-2">
+														{selectedCase.attachments.map(
+															(attachment, index) => (
+																<a
+																	key={index}
+																	href={attachment}
+																	download
+																	target="_blank"
+																	rel="noopener noreferrer"
+																	className="inline-flex w-full items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+																>
+																	<FileText className="mr-2 h-4 w-4" />
+																	Download Attachment {index + 1}
+																</a>
+															)
+														)}
+													</div>
+												</div>
+											)}
 									</div>
 								)}
 							</div>
