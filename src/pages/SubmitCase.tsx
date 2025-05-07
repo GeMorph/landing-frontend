@@ -97,14 +97,7 @@ export const SubmitCase = () => {
 				`${API_URL}/case`,
 				{
 					...formData,
-					dnaFile: dnaFileUrl
-						? {
-								url: dnaFileUrl,
-								name: formData.dnaFile?.name,
-								size: formData.dnaFile?.size,
-								type: formData.dnaFile?.type,
-							}
-						: null,
+					dnaFile: dnaFileUrl || null,
 					tags: formData.tags
 						.split(",")
 						.map((tag) => tag.trim())

@@ -217,16 +217,7 @@ export default function CreateReport() {
 					...formData,
 					user: formData.assignedTo,
 					case: formData.caseId || undefined,
-					attachments: fileUrl
-						? [
-								{
-									url: fileUrl,
-									name: formData.reportFile?.name,
-									size: formData.reportFile?.size,
-									type: formData.reportFile?.type,
-								},
-							]
-						: [],
+					attachments: fileUrl ? [fileUrl] : [],
 				},
 				{
 					headers: {
