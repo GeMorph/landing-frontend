@@ -14,7 +14,6 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import axios from "axios";
 import { Loader2, Upload } from "lucide-react";
 
@@ -166,29 +165,26 @@ export default function CreateReport() {
 
 	const uploadFile = async (file: File) => {
 		try {
-			const storage = getStorage();
-			const fileRef = ref(
-				storage,
-				`report-files/${user?.uid}/${Date.now()}-${file.name}`
+			const formData = new FormData();
+			formData.append("file", file);
+			formData.append(
+				"upload_preset",
+				import.meta.env["VITE_CLOUDINARY_REPORT_UPLOAD_PRESET"]
+			);
+			formData.append(
+				"cloud_name",
+				import.meta.env["VITE_CLOUDINARY_CLOUD_NAME"]
 			);
 
-			// Set metadata to handle CORS
-			const metadata = {
-				contentType: file.type,
-				customMetadata: {
-					"Access-Control-Allow-Origin": "*",
-				},
-			};
+			const response = await axios.post(
+				`https://api.cloudinary.com/v1_1/${import.meta.env["VITE_CLOUDINARY_CLOUD_NAME"]}/raw/upload`,
+				formData
+			);
 
-			await uploadBytes(fileRef, file, metadata);
-			return await getDownloadURL(fileRef);
+			return response.data.secure_url;
 		} catch (error: any) {
 			console.error("Error uploading file:", error);
-			if (error.code === "storage/cors-error") {
-				toast.error("CORS error: Please contact support");
-			} else {
-				toast.error("Failed to upload file. Please try again.");
-			}
+			toast.error("Failed to upload file. Please try again.");
 			throw error;
 		}
 	};
